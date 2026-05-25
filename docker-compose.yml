@@ -1,0 +1,18 @@
+services:
+  db-user:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${USER_DB_PORT}:5432"
+
+  db-task:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: task_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${TASK_DB_PORT}:5432"
