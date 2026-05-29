@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package task;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "task-tracker/proto/task";
+
+
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+  rpc DeleteTasks(DeleteTasksRequest) returns (google.protobuf.Empty);
+}
+
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;
+  TASK_STATUS_IN_PROGRESS = 1;
+  TASK_STATUS_DONE = 2;
+  TASK_STATUS_CANCELLED = 3;
+}
+
+
+message Task {
+  string id = 1;
+  string title = 2;
+  optional string description = 3;
+  TaskStatus status = 4;
+  string user_id = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+
+message CreateTaskRequest {
+  string user_id = 1;
+  string title = 2;
+  optional string description = 3;
+}
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+
+message GetTaskRequest {
+  string id = 1;
+}
+message GetTaskResponse {
+  Task task = 1; 
+}
+
+
+message ListTasksRequest {
+  string user_id = 1;
+  optional TaskStatus status = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  string next_page_token = 2;
+}
+
+
+message UpdateTaskRequest {
+  string id = 1;
+  optional string title = 2;
+  optional string description = 3;
+  optional TaskStatus status = 4;
+}
+message UpdateTaskResponse {
+  Task task = 1;
+}
+
+
+message DeleteTasksRequest {
+  repeated string ids = 1;
+}
