@@ -14,10 +14,11 @@ type Config struct {
 
 func NewConfig() *Config {
 	_ = godotenv.Load()
+
 	return &Config{
 		Port:            getEnv("GATEWAY_PORT", ":8080"),
 		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
-		TaskServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50052"),
+		TaskServiceAddr: getEnv("TASK_SERVICE_ADDR", "localhost:50052"),
 	}
 }
 
