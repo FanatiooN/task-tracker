@@ -99,3 +99,24 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, response.Task)
 }
+
+func (h *TaskHandler) DeleteTasks(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Ids []string `json:"ids"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	_, err := h.client.DeleteTasks(r.Context(), &taskpb.DeleteTasksRequest{
+		Ids: req.Ids,
+	})
+	if err != nil {
+		//writeGRPCError(w, err) // TODO
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
