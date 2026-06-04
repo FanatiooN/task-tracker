@@ -38,3 +38,21 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusCreated, response.Task)
 }
+
+func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	response, err := h.client.GetTask(r.Context(), &taskpb.GetTaskRequest{
+		Id: id,
+	})
+	if err != nil {
+		//writeGRPCError(w, err) // TODO
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response.Task)
+}
