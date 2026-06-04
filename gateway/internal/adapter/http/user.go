@@ -86,3 +86,21 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, response.User)
 }
+
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	_, err := h.client.DeleteUser(r.Context(), &userpb.DeleteUserRequest{
+		Id: id,
+	})
+	if err != nil {
+		//writeGRPCError(w, err) // TODO
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
