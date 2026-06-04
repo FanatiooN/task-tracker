@@ -37,6 +37,24 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, response.User)
 }
 
+func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	response, err := h.client.GetUser(r.Context(), &userpb.GetUserRequest{
+		Id: id,
+	})
+	if err != nil {
+		//writeGRPCError(w, err) // TODO
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response.User)
+}
+
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
