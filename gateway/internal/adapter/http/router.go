@@ -17,7 +17,7 @@ func NewRouter(h Handlers) http.Handler {
 
 	mux.HandleFunc("POST /tasks", h.Task.CreateTask)
 	mux.HandleFunc("GET /tasks/{id}", h.Task.GetTask)
-	//mux.HandleFunc("GET /tasks", h.Task.ListTasks) // TODO
+	mux.HandleFunc("GET /tasks", h.Task.ListTasks)
 	mux.HandleFunc("PUT /tasks/{id}", h.Task.UpdateTask)
 	mux.HandleFunc("DELETE /tasks/{id}", h.Task.DeleteTasks)
 
