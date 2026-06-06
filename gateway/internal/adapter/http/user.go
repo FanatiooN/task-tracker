@@ -73,6 +73,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if req.Name == nil {
 		writeError(w, http.StatusBadRequest, "nothing to update")
+		return
 	}
 
 	response, err := h.client.UpdateUser(r.Context(), &userpb.UpdateUserRequest{
