@@ -3,6 +3,8 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 	taskpb "task-tracker/gen/proto/task"
 )
 
@@ -55,6 +57,54 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, response.Task)
+}
+
+func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
+
+	ownerId := strings.TrimSpace(r.URL.Query().Get("ownerId"))
+	taskStatus := strings.TrimSpace(r.URL.Query().Get("taskStatus"))
+	pageSize := strings.TrimSpace(r.URL.Query().Get("pageSize"))
+	pageToken := strings.TrimSpace(r.URL.Query().Get("pageToken"))
+
+	if ownerId == "" {
+		writeError(w, http.StatusBadRequest, "missing required parameters")
+		return
+	}
+	var size int32
+	if pageSize == "" {
+		size = 20
+	} else {
+		parsedSize, err := strconv.ParseInt(pageSize, 10, 32)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "invalid page size")
+			return
+		}
+		size = int32(parsedSize)
+	}
+
+	var status *taskpb.TaskStatus
+	if taskStatus != "" {
+		value := taskpb.TaskStatus_value[taskStatus]
+		if value == 0 {
+			writeError(w, http.StatusBadRequest, "invalid task status")
+			return
+		}
+		v := taskpb.TaskStatus(value)
+		status = &v
+	}
+
+	response, err := h.client.ListTasks(r.Context(), &taskpb.ListTasksRequest{
+		UserId:    ownerId,
+		Status:    status,
+		PageSize:  size,
+		PageToken: pageToken,
+	})
+	if err != nil {
+		//writeGRPCError(w, err) // TODO
+		return
+	}
+
+	writeJSON(w, http.StatusOK, response)
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
