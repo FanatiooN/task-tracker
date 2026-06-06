@@ -34,7 +34,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		Description: req.Description,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 		Id: id,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 		PageToken: pageToken,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		Status:      status,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -164,7 +164,7 @@ func (h *TaskHandler) DeleteTasks(w http.ResponseWriter, r *http.Request) {
 		Ids: req.Ids,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 

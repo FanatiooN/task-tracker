@@ -20,5 +20,5 @@ func writeError(w http.ResponseWriter, status int, message string) {
 }
 
 func writeGRPCError(w http.ResponseWriter, err error) {
-	// TODO
+	writeJSON(w, http.StatusInternalServerError, map[string]string{"message": err.Error()})
 }

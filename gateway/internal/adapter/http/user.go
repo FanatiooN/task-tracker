@@ -30,7 +30,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Email: req.Email,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		Id: id,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		Name: req.Name,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		Id: id,
 	})
 	if err != nil {
-		//writeGRPCError(w, err) // TODO
+		writeGRPCError(w, err)
 		return
 	}
 
