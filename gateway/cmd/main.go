@@ -28,6 +28,7 @@ func main() {
 	})
 
 	log.Printf("gateway started, port = %s", conf.Port)
+
 	if err := http.ListenAndServe(conf.Port, router); err != nil {
 		log.Fatalf("server error: %v", err)
 	}

@@ -60,7 +60,6 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
-
 	ownerId := strings.TrimSpace(r.URL.Query().Get("ownerId"))
 	taskStatus := strings.TrimSpace(r.URL.Query().Get("taskStatus"))
 	pageSize := strings.TrimSpace(r.URL.Query().Get("pageSize"))
@@ -70,7 +69,9 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "missing required parameters")
 		return
 	}
+
 	var size int32
+
 	if pageSize == "" {
 		size = 20
 	} else {
@@ -79,16 +80,20 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "invalid page size")
 			return
 		}
+
 		size = int32(parsedSize)
 	}
 
 	var status *taskpb.TaskStatus
+
 	if taskStatus != "" {
 		value := taskpb.TaskStatus_value[taskStatus]
 		if value == 0 {
 			writeError(w, http.StatusBadRequest, "invalid task status")
+
 			return
 		}
+
 		v := taskpb.TaskStatus(value)
 		status = &v
 	}
@@ -122,16 +127,20 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
+
 		return
 	}
 
 	var status *taskpb.TaskStatus
+
 	if req.TaskStatus != nil {
 		value := taskpb.TaskStatus_value[*req.TaskStatus]
 		if value == 0 {
 			writeError(w, http.StatusBadRequest, "invalid task status")
+
 			return
 		}
+
 		v := taskpb.TaskStatus(value)
 		status = &v
 	}
