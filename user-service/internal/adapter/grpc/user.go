@@ -88,8 +88,17 @@ func (u UserServer) UpdateUser(ctx context.Context, request *userpb.UpdateUserRe
 }
 
 func (u UserServer) DeleteUser(ctx context.Context, request *userpb.DeleteUserRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	id, err := uuid.Parse(request.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
+	}
+
+	err = u.service.DeleteUser(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (u UserServer) mustEmbedUnimplementedUserServiceServer() {
