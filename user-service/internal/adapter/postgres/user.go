@@ -52,8 +52,21 @@ func (u *UserRepository) Save(ctx context.Context, user domain.User) (domain.Use
 }
 
 func (u UserRepository) FindByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	row, err := u.queries.GetUser(ctx, id)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var email *string
+	if row.Email.Valid {
+		email = &row.Email.String
+	}
+
+	return domain.User{
+		ID:    row.ID,
+		Name:  row.Name,
+		Email: email,
+	}, nil
 }
 
 func (u UserRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
