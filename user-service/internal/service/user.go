@@ -56,8 +56,33 @@ func (u UserService) GetUser(ctx context.Context, id uuid.UUID) (domain.User, er
 }
 
 func (u UserService) UpdateUser(ctx context.Context, user domain.User) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	response, err := u.repository.FindByID(ctx, user.ID)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	user.Name = strings.TrimSpace(user.Name)
+	if user.Name != "" {
+		response.Name = user.Name
+	}
+
+	var email string
+
+	if user.Email != nil {
+		email = strings.TrimSpace(*user.Email)
+		if !validEmail.MatchString(email) {
+			return domain.User{}, errors.New("invalid email")
+		}
+
+		response.Email = &email
+	}
+
+	response, err = u.repository.Update(ctx, response)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return response, nil
 }
 
 func (u UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
