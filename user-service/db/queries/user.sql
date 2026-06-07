@@ -1,7 +1,7 @@
 -- name: CreateUser :one
 INSERT INTO users (name, email)
 VALUES ($1, $2)
-RETURNING name, email;
+RETURNING id, name, email;
 
 -- name: GetUser :one
 SELECT * FROM users
