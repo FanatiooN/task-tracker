@@ -60,8 +60,31 @@ func (u UserServer) GetUser(ctx context.Context, request *userpb.GetUserRequest)
 }
 
 func (u UserServer) UpdateUser(ctx context.Context, request *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	id, err := uuid.Parse(request.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
+	}
+
+	if request.Name == nil {
+		return nil, status.Error(codes.InvalidArgument, "nothing to change")
+	}
+
+	response, err := u.service.UpdateUser(ctx, domain.User{
+		ID:   id,
+		Name: *request.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	user := userpb.User{
+		Id:        response.ID.String(),
+		Name:      response.Name,
+		Email:     response.Email,
+		CreatedAt: timestamppb.New(response.CreatedAt),
+		UpdatedAt: timestamppb.New(response.UpdatedAt),
+	}
+	return &userpb.UpdateUserResponse{User: &user}, nil
 }
 
 func (u UserServer) DeleteUser(ctx context.Context, request *userpb.DeleteUserRequest) (*emptypb.Empty, error) {
