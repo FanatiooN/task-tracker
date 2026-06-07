@@ -45,9 +45,11 @@ func (u *UserRepository) Save(ctx context.Context, user domain.User) (domain.Use
 	}
 
 	return domain.User{
-		ID:    row.ID,
-		Name:  row.Name,
-		Email: email,
+		ID:        row.ID,
+		Name:      row.Name,
+		Email:     email,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
 	}, nil
 }
 
@@ -63,9 +65,11 @@ func (u UserRepository) FindByID(ctx context.Context, id uuid.UUID) (domain.User
 	}
 
 	return domain.User{
-		ID:    row.ID,
-		Name:  row.Name,
-		Email: email,
+		ID:        row.ID,
+		Name:      row.Name,
+		Email:     email,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
 	}, nil
 }
 
@@ -105,9 +109,11 @@ func (u UserRepository) Update(ctx context.Context, user domain.User) (domain.Us
 	}
 
 	return domain.User{
-		ID:    row.ID,
-		Name:  resp.Name,
-		Email: email,
+		ID:        row.ID,
+		Name:      resp.Name,
+		Email:     email,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
 	}, nil
 }
 
