@@ -15,6 +15,7 @@ import (
 
 type UserServer struct {
 	service in.UserService
+	userpb.UnimplementedUserServiceServer
 }
 
 func (u UserServer) CreateUser(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
@@ -99,11 +100,6 @@ func (u UserServer) DeleteUser(ctx context.Context, request *userpb.DeleteUserRe
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func (u UserServer) mustEmbedUnimplementedUserServiceServer() {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewUserServer(service in.UserService) *UserServer {
