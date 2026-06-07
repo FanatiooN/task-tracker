@@ -112,6 +112,10 @@ func (u UserRepository) Update(ctx context.Context, user domain.User) (domain.Us
 }
 
 func (u UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := u.queries.DeleteUser(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
