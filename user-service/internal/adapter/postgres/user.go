@@ -70,8 +70,45 @@ func (u UserRepository) FindByID(ctx context.Context, id uuid.UUID) (domain.User
 }
 
 func (u UserRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	row, err := u.queries.GetUser(ctx, user.ID)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var params db.UpdateUserParams
+
+	params.ID = user.ID
+
+	if user.Name != "" {
+		params.Name = user.Name
+	} else {
+		params.Name = row.Name
+	}
+
+	if user.Email != nil {
+		params.Email = pgtype.Text{
+			String: *user.Email,
+			Valid:  true,
+		}
+	} else {
+		params.Email = row.Email
+	}
+
+	resp, err := u.queries.UpdateUser(ctx, params)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var email *string
+	if resp.Email.Valid {
+		email = &resp.Email.String
+	}
+
+	return domain.User{
+		ID:    row.ID,
+		Name:  resp.Name,
+		Email: email,
+	}, nil
 }
 
 func (u UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
