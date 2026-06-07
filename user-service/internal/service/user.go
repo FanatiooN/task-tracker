@@ -47,8 +47,12 @@ func (u UserService) CreateUser(ctx context.Context, user domain.User) (domain.U
 }
 
 func (u UserService) GetUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	response, err := u.repository.FindByID(ctx, id)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return response, nil
 }
 
 func (u UserService) UpdateUser(ctx context.Context, user domain.User) (domain.User, error) {
