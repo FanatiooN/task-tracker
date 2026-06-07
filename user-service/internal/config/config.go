@@ -18,7 +18,7 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	_ = godotenv.Load()
+	_ = godotenv.Load("user-service/.env")
 
 	return &Config{
 		GRPCPort: getEnv("GRPC_PORT", ":50051"),
