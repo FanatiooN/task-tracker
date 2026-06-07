@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -15,7 +16,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, email)
 VALUES ($1, $2)
-RETURNING id, name, email
+RETURNING id, name, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -24,15 +25,23 @@ type CreateUserParams struct {
 }
 
 type CreateUserRow struct {
-	ID    uuid.UUID   `json:"id"`
-	Name  string      `json:"name"`
-	Email pgtype.Text `json:"email"`
+	ID        uuid.UUID   `json:"id"`
+	Name      string      `json:"name"`
+	Email     pgtype.Text `json:"email"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email)
 	var i CreateUserRow
-	err := row.Scan(&i.ID, &i.Name, &i.Email)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
@@ -78,7 +87,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET name = $2, email = $3, updated_at = now()
 WHERE deleted_at IS NULL and id = $1
-RETURNING name, email
+RETURNING id, name, email, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -88,13 +97,22 @@ type UpdateUserParams struct {
 }
 
 type UpdateUserRow struct {
-	Name  string      `json:"name"`
-	Email pgtype.Text `json:"email"`
+	ID        uuid.UUID   `json:"id"`
+	Name      string      `json:"name"`
+	Email     pgtype.Text `json:"email"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error) {
 	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.Name, arg.Email)
 	var i UpdateUserRow
-	err := row.Scan(&i.Name, &i.Email)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
