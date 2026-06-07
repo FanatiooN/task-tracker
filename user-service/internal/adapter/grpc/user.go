@@ -41,7 +41,7 @@ func (u UserServer) CreateUser(ctx context.Context, request *userpb.CreateUserRe
 func (u UserServer) GetUser(ctx context.Context, request *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
 	id, err := uuid.Parse(request.Id)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", id)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
 	}
 
 	response, err := u.service.GetUser(ctx, id)
@@ -49,14 +49,14 @@ func (u UserServer) GetUser(ctx context.Context, request *userpb.GetUserRequest)
 		return nil, err
 	}
 
-	createResponse := userpb.User{
+	user := userpb.User{
 		Id:        response.ID.String(),
 		Name:      response.Name,
 		Email:     response.Email,
 		CreatedAt: timestamppb.New(response.CreatedAt),
 		UpdatedAt: timestamppb.New(response.UpdatedAt),
 	}
-	return &userpb.GetUserResponse{User: &createResponse}, nil
+	return &userpb.GetUserResponse{User: &user}, nil
 }
 
 func (u UserServer) UpdateUser(ctx context.Context, request *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
