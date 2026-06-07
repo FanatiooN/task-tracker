@@ -6,6 +6,7 @@ import (
 	"task-tracker/user-service/internal/domain"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type UserRepository struct {
@@ -16,9 +17,38 @@ func NewUserRepository(queries *db.Queries) *UserRepository {
 	return &UserRepository{queries: queries}
 }
 
-func (u UserRepository) Save(ctx context.Context, user domain.User) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u *UserRepository) Save(ctx context.Context, user domain.User) (domain.User, error) {
+	var params db.CreateUserParams
+
+	params.Name = user.Name
+
+	if user.Email != nil {
+		params.Email = pgtype.Text{
+			String: *user.Email,
+			Valid:  true,
+		}
+	} else {
+		params.Email = pgtype.Text{
+			String: "",
+			Valid:  false,
+		}
+	}
+
+	row, err := u.queries.CreateUser(ctx, params)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var email *string
+	if row.Email.Valid {
+		email = &row.Email.String
+	}
+
+	return domain.User{
+		ID:    row.ID,
+		Name:  row.Name,
+		Email: email,
+	}, nil
 }
 
 func (u UserRepository) FindByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
