@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "task-tracker/proto/auth";
+
+service AuthService {
+  rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
+}
+
+
+message LoginByEmailRequest {
+  string email = 1;
+  string password = 2;
+}
+message LoginByEmailResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+
+message ValidateTokenRequest {
+  string access_token = 1;
+}
+message ValidateTokenResponse {
+  string user_id = 1;
+}
+
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
