@@ -13,7 +13,7 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	_ = godotenv.Load()
+	_ = godotenv.Load("gateway/.env")
 
 	return &Config{
 		Port:            getEnv("GATEWAY_PORT", ":8080"),
