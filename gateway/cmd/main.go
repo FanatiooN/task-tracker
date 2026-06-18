@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	grpcadapter "task-tracker/gateway/internal/adapter/grpc"
 	httpadapter "task-tracker/gateway/internal/adapter/http"
@@ -12,12 +17,12 @@ import (
 func main() {
 	conf := config.NewConfig()
 
-	userClient, err := grpcadapter.NewUserClient(conf.UserServiceAddr)
+	userClient, userConn, err := grpcadapter.NewUserClient(conf.UserServiceAddr)
 	if err != nil {
 		log.Fatalf("failed to connect to user service: %v", err)
 	}
 
-	taskClient, err := grpcadapter.NewTaskClient(conf.TaskServiceAddr)
+	taskClient, taskConn, err := grpcadapter.NewTaskClient(conf.TaskServiceAddr)
 	if err != nil {
 		log.Fatalf("failed to connect to task service: %v", err)
 	}
@@ -29,7 +34,33 @@ func main() {
 
 	log.Printf("gateway started, port = %s", conf.Port)
 
-	if err := http.ListenAndServe(conf.Port, router); err != nil {
-		log.Fatalf("server error: %v", err)
+	server := http.Server{
+		Addr:    conf.Port,
+		Handler: router,
+	}
+
+	errChan := make(chan error, 1)
+
+	go func(errChan chan<- error) {
+		err := server.ListenAndServe()
+		if err != nil {
+			errChan <- err
+		}
+	}(errChan)
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
+
+	select {
+	case <-sigChan:
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		server.Shutdown(ctx)
+		userConn.Close()
+		taskConn.Close()
+		return
+	case err := <-errChan:
+		log.Fatal(err)
 	}
 }

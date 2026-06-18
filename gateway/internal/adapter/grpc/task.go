@@ -7,13 +7,13 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewTaskClient(addr string) (taskpb.TaskServiceClient, error) {
+func NewTaskClient(addr string) (taskpb.TaskServiceClient, *grpclib.ClientConn, error) {
 	conn, err := grpclib.NewClient(addr, grpclib.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	client := taskpb.NewTaskServiceClient(conn)
 
-	return client, nil
+	return client, conn, nil
 }
