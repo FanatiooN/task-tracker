@@ -13,3 +13,8 @@ type RefreshToken struct {
 	ExpiresAt time.Time
 	IsRevoked bool
 }
+
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
+}
