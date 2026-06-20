@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"task-tracker/auth-service/internal/domain"
 	"task-tracker/auth-service/internal/port/out"
 	"time"
@@ -107,6 +108,21 @@ func (a AuthService) Logout(ctx context.Context, refreshToken string) error {
 }
 
 func (a AuthService) ValidateToken(ctx context.Context, accessToken string) (uuid.UUID, error) {
-	//TODO implement me
-	panic("implement me")
+	token, err := jwt.ParseWithClaims(accessToken, &AccessClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(a.jwtSecret), nil
+	})
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	if !token.Valid {
+		return uuid.Nil, errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(*AccessClaims)
+	if !ok {
+		return uuid.Nil, errors.New("invalid token")
+	}
+
+	return claims.UserID, nil
 }
