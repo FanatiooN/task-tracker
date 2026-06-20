@@ -6,6 +6,6 @@ import (
 )
 
 type CredentialRepository interface {
-	Save(ctx context.Context, credential domain.Credential)
-	FindByEmail(ctx context.Context, email string)
+	Save(ctx context.Context, credential domain.Credential) error
+	FindByEmail(ctx context.Context, email string) (domain.Credential, error)
 }
