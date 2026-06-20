@@ -6,6 +6,6 @@ import (
 
 type Credential struct {
 	UserID       uuid.UUID
-	email        string
+	Email        string
 	PasswordHash string
 }
