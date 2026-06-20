@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type RefreshToken interface {
+type TokenRepository interface {
 	Save(ctx context.Context, token domain.RefreshToken)
 	FindByUserID(ctx context.Context, userID uuid.UUID)
 }
