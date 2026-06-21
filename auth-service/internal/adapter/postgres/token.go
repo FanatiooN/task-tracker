@@ -45,3 +45,27 @@ func (t TokenRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (do
 		IsRevoked: row.IsRevoked.Bool,
 	}, nil
 }
+
+func (t TokenRepository) FindByTokenHash(ctx context.Context, tokenHash string) (domain.RefreshToken, error) {
+	row, err := t.queries.FindByTokenHash(ctx, tokenHash)
+	if err != nil {
+		return domain.RefreshToken{}, err
+	}
+
+	return domain.RefreshToken{
+		ID:        row.ID,
+		UserID:    row.UserID,
+		TokenHash: row.TokenHash,
+		ExpiresAt: row.ExpiresAt,
+		IsRevoked: row.IsRevoked.Bool,
+	}, nil
+}
+
+func (t TokenRepository) DeleteByUserID(ctx context.Context, userID uuid.UUID) error {
+	err := t.queries.DeleteByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
