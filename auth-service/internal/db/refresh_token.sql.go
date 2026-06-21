@@ -31,6 +31,34 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (uuid.
 	return id, err
 }
 
+const deleteByUserID = `-- name: DeleteByUserID :exec
+DELETE FROM refresh_tokens
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteByUserID(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteByUserID, userID)
+	return err
+}
+
+const findByTokenHash = `-- name: FindByTokenHash :one
+SELECT id, user_id, token_hash, expires_at, is_revoked FROM refresh_tokens
+WHERE token_hash = $1 and is_revoked = FALSE
+`
+
+func (q *Queries) FindByTokenHash(ctx context.Context, tokenHash string) (RefreshToken, error) {
+	row := q.db.QueryRow(ctx, findByTokenHash, tokenHash)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TokenHash,
+		&i.ExpiresAt,
+		&i.IsRevoked,
+	)
+	return i, err
+}
+
 const findByUserID = `-- name: FindByUserID :one
 SELECT id, user_id, token_hash, expires_at, is_revoked FROM refresh_tokens
 WHERE user_id = $1 and is_revoked = FALSE

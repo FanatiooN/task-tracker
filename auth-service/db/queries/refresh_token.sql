@@ -6,3 +6,11 @@ RETURNING id;
 -- name: FindByUserID :one
 SELECT * FROM refresh_tokens
 WHERE user_id = $1 and is_revoked = FALSE;
+
+-- name: FindByTokenHash :one
+SELECT * FROM refresh_tokens
+WHERE token_hash = $1 and is_revoked = FALSE;
+
+-- name: DeleteByUserID :exec
+DELETE FROM refresh_tokens
+WHERE user_id = $1;
