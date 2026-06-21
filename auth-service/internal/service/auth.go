@@ -49,7 +49,7 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 		return domain.Tokens{}, err
 	}
 
-	tokens, err := a.generateAccessToken(ctx, creds.UserID, creds.Email)
+	tokens, err := a.generateAccessToken(ctx, creds.UserID)
 	if err != nil {
 		return domain.Tokens{}, err
 	}
@@ -57,13 +57,12 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 	return tokens, nil
 }
 
-func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID, email string) (domain.Tokens, error) {
+func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID) (domain.Tokens, error) {
 	now := time.Now()
 
 	expiresAt := jwt.NewNumericDate(now.Add(a.accessTTL))
 	claims := AccessClaims{
 		UserID: userID,
-		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiresAt,
 			IssuedAt:  jwt.NewNumericDate(now),
