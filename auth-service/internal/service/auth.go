@@ -98,8 +98,34 @@ func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID, 
 }
 
 func (a AuthService) RefreshToken(ctx context.Context, refreshToken string) (domain.Tokens, error) {
-	//TODO implement me
-	panic("implement me")
+	hash := sha256.Sum256([]byte(refreshToken))
+	tokenHash := hex.EncodeToString(hash[:])
+
+	token, err := a.tokens.FindByTokenHash(ctx, tokenHash)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	if token.ExpiresAt.Before(time.Now()) {
+		err := a.tokens.DeleteByUserID(ctx, token.UserID)
+		if err != nil {
+			return domain.Tokens{}, err
+		}
+
+		return domain.Tokens{}, errors.New("token expired")
+	}
+
+	err = a.tokens.DeleteByUserID(ctx, token.UserID)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	tokens, err := a.generateAccessToken(ctx, token.UserID)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	return tokens, nil
 }
 
 func (a AuthService) Logout(ctx context.Context, refreshToken string) error {
