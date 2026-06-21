@@ -128,8 +128,20 @@ func (a AuthService) RefreshToken(ctx context.Context, refreshToken string) (dom
 }
 
 func (a AuthService) Logout(ctx context.Context, refreshToken string) error {
-	//TODO implement me
-	panic("implement me")
+	hash := sha256.Sum256([]byte(refreshToken))
+	tokenHash := hex.EncodeToString(hash[:])
+
+	token, err := a.tokens.FindByTokenHash(ctx, tokenHash)
+	if err != nil {
+		return err
+	}
+
+	err = a.tokens.DeleteByUserID(ctx, token.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a AuthService) ValidateToken(ctx context.Context, accessToken string) (uuid.UUID, error) {
