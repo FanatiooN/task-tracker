@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
-	"task-tracker/auth-service/internal/domain"
+	//"task-tracker/auth-service/internal/domain"
 	"task-tracker/auth-service/internal/port/in"
 	"task-tracker/gen/proto/auth"
 
-	"github.com/google/uuid"
+	//"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -37,8 +37,17 @@ func (a AuthServer) LoginByEmail(ctx context.Context, request *auth.LoginByEmail
 }
 
 func (a AuthServer) RefreshToken(ctx context.Context, request *auth.RefreshTokenRequest) (*auth.RefreshTokenResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	refreshToken := request.RefreshToken
+
+	tokens, err := a.service.RefreshToken(ctx, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &auth.RefreshTokenResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}, nil
 }
 
 func (a AuthServer) ValidateToken(ctx context.Context, request *auth.ValidateTokenRequest) (*auth.ValidateTokenResponse, error) {
@@ -53,6 +62,12 @@ func (a AuthServer) ValidateToken(ctx context.Context, request *auth.ValidateTok
 }
 
 func (a AuthServer) Logout(ctx context.Context, request *auth.LogoutRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	refreshToken := request.RefreshToken
+
+	err := a.service.Logout(ctx, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
