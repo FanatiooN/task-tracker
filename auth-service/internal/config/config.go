@@ -26,7 +26,7 @@ func NewConfig() *Config {
 	_ = godotenv.Load("auth-service/.env")
 
 	return &Config{
-		GRPCPort: getEnv("GRPC_PORT", ":50051"),
+		GRPCPort: getEnv("GRPC_PORT", ":50053"),
 
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),
