@@ -27,7 +27,7 @@ func main() {
 		log.Fatalf("failed to connect to task service: %v", err)
 	}
 
-	authClient, authConn, err := grpcadapter.NewAuthClient(conf.TaskServiceAddr)
+	authClient, authConn, err := grpcadapter.NewAuthClient(conf.AuthServiceAddr)
 	if err != nil {
 		log.Fatalf("failed to connect to auth service: %v", err)
 	}
@@ -35,8 +35,8 @@ func main() {
 	router := httpadapter.NewRouter(httpadapter.Handlers{
 		User: httpadapter.NewUserHandler(userClient),
 		Task: httpadapter.NewTaskHandler(taskClient),
-		Auth: httpadapter.NewAuthHandler(authClient),
-	})
+		Auth: httpadapter.NewAuthHandler(authClient, userClient),
+	}, authClient)
 
 	log.Printf("gateway started, port = %s", conf.Port)
 
