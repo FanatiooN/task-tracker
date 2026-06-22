@@ -2,11 +2,10 @@ package grpc
 
 import (
 	"context"
-	//"task-tracker/auth-service/internal/domain"
 	"task-tracker/auth-service/internal/port/in"
 	"task-tracker/gen/proto/auth"
 
-	//"github.com/google/uuid"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -31,6 +30,26 @@ func (a AuthServer) LoginByEmail(ctx context.Context, request *auth.LoginByEmail
 	}
 
 	return &auth.LoginByEmailResponse{
+		AccessToken:  response.AccessToken,
+		RefreshToken: response.RefreshToken,
+	}, nil
+}
+
+func (a AuthServer) RegisterByEmail(ctx context.Context, request *auth.RegisterByEmailRequest) (*auth.RegisterByEmailResponse, error) {
+	email := request.Email
+	password := request.Password
+
+	userID, err := uuid.Parse(request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := a.service.RegisterByEmail(ctx, userID, email, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &auth.RegisterByEmailResponse{
 		AccessToken:  response.AccessToken,
 		RefreshToken: response.RefreshToken,
 	}, nil
