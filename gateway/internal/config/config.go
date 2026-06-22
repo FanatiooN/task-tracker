@@ -10,6 +10,7 @@ type Config struct {
 	Port            string
 	UserServiceAddr string
 	TaskServiceAddr string
+	AuthServiceAddr string
 }
 
 func NewConfig() *Config {
@@ -19,6 +20,7 @@ func NewConfig() *Config {
 		Port:            getEnv("GATEWAY_PORT", ":8080"),
 		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 		TaskServiceAddr: getEnv("TASK_SERVICE_ADDR", "localhost:50052"),
+		AuthServiceAddr: getEnv("AUTH_SERVICE_ADDR", "localhost:50053"),
 	}
 }
 
