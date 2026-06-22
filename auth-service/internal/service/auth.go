@@ -57,6 +57,29 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 	return tokens, nil
 }
 
+func (a AuthService) RegisterByEmail(ctx context.Context, userID uuid.UUID, email, password string) (domain.Tokens, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	err = a.credentials.Save(ctx, domain.Credential{
+		UserID:       userID,
+		Email:        email,
+		PasswordHash: string(passwordHash),
+	})
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	tokens, err := a.generateAccessToken(ctx, userID)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	return tokens, nil
+}
+
 func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID) (domain.Tokens, error) {
 	now := time.Now()
 
