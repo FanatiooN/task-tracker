@@ -1,6 +1,9 @@
 package http
 
-import "net/http"
+import (
+	"net/http"
+	authpb "task-tracker/gen/proto/auth"
+)
 
 type Handlers struct {
 	User *UserHandler
@@ -8,23 +11,27 @@ type Handlers struct {
 	Auth *AuthHandler
 }
 
-func NewRouter(h Handlers) http.Handler {
+func NewRouter(h Handlers, authClient authpb.AuthServiceClient) http.Handler {
 	mux := http.NewServeMux()
 
+	auth := AuthMiddleware(authClient)
+
 	mux.HandleFunc("POST /users", h.User.CreateUser)
-	mux.HandleFunc("GET /users/{id}", h.User.GetUser)
-	mux.HandleFunc("PUT /users/{id}", h.User.UpdateUser)
-	mux.HandleFunc("DELETE /users/{id}", h.User.DeleteUser)
-
 	mux.HandleFunc("POST /login", h.Auth.Login)
+	mux.HandleFunc("POST /register", h.Auth.Register)
 	mux.HandleFunc("POST /refresh", h.Auth.Refresh)
-	mux.HandleFunc("POST /logout", h.Auth.Logout)
 
-	mux.HandleFunc("POST /tasks", h.Task.CreateTask)
-	mux.HandleFunc("GET /tasks/{id}", h.Task.GetTask)
-	mux.HandleFunc("GET /tasks", h.Task.ListTasks)
-	mux.HandleFunc("PUT /tasks/{id}", h.Task.UpdateTask)
-	mux.HandleFunc("DELETE /tasks/{id}", h.Task.DeleteTasks)
+	mux.Handle("GET /users/{id}", auth(http.HandlerFunc(h.User.GetUser)))
+	mux.Handle("PUT /users/{id}", auth(http.HandlerFunc(h.User.UpdateUser)))
+	mux.Handle("DELETE /users/{id}", auth(http.HandlerFunc(h.User.DeleteUser)))
+
+	mux.Handle("POST /logout", auth(http.HandlerFunc(h.Auth.Logout)))
+
+	mux.Handle("POST /tasks", auth(http.HandlerFunc(h.Task.CreateTask)))
+	mux.Handle("GET /tasks/{id}", auth(http.HandlerFunc(h.Task.GetTask)))
+	mux.Handle("GET /tasks", auth(http.HandlerFunc(h.Task.ListTasks)))
+	mux.Handle("PUT /tasks/{id}", auth(http.HandlerFunc(h.Task.UpdateTask)))
+	mux.Handle("DELETE /tasks/{id}", auth(http.HandlerFunc(h.Task.DeleteTasks)))
 
 	return mux
 }
