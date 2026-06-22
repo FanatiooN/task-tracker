@@ -7,10 +7,22 @@ import "google/protobuf/empty.proto";
 option go_package = "task-tracker/proto/auth";
 
 service AuthService {
+  rpc RegisterByEmail(RegisterByEmailRequest) returns (RegisterByEmailResponse);
   rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
+}
+
+
+message RegisterByEmailRequest {
+  string email = 1;
+  string user_id = 2;
+  string password = 3;
+}
+message RegisterByEmailResponse {
+  string access_token = 1;
+  string refresh_token = 2;
 }
 
 
