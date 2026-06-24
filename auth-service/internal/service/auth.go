@@ -7,6 +7,7 @@ import (
 	"errors"
 	"task-tracker/auth-service/internal/domain"
 	"task-tracker/auth-service/internal/port/out"
+	userpb "task-tracker/gen/proto/user"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -20,21 +21,22 @@ type AuthService struct {
 	jwtSecret   string
 	accessTTL   time.Duration
 	refreshTTL  time.Duration
+	userClient  userpb.UserServiceClient
 }
 
 type AccessClaims struct {
 	UserID uuid.UUID
-	Email  string
 	jwt.RegisteredClaims
 }
 
-func NewAuthService(credentials out.CredentialRepository, tokens out.TokenRepository, jwtSecret string, accessTTL time.Duration, refreshTTL time.Duration) *AuthService {
+func NewAuthService(credentials out.CredentialRepository, tokens out.TokenRepository, jwtSecret string, accessTTL time.Duration, refreshTTL time.Duration, userClient userpb.UserServiceClient) *AuthService {
 	return &AuthService{
 		credentials: credentials,
 		tokens:      tokens,
 		jwtSecret:   jwtSecret,
 		accessTTL:   accessTTL,
 		refreshTTL:  refreshTTL,
+		userClient:  userClient,
 	}
 }
 
@@ -57,7 +59,20 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 	return tokens, nil
 }
 
-func (a AuthService) RegisterByEmail(ctx context.Context, userID uuid.UUID, email, password string) (domain.Tokens, error) {
+func (a AuthService) RegisterByEmail(ctx context.Context, name, email, password string) (domain.Tokens, error) {
+	createdUser, err := a.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
+		Name:  name,
+		Email: &email,
+	})
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	userID, err := uuid.Parse(createdUser.User.Id)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return domain.Tokens{}, err
