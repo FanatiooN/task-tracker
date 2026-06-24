@@ -16,7 +16,6 @@ func NewRouter(h Handlers, authClient authpb.AuthServiceClient) http.Handler {
 
 	auth := AuthMiddleware(authClient)
 
-	mux.HandleFunc("POST /users", h.User.CreateUser)
 	mux.HandleFunc("POST /login", h.Auth.Login)
 	mux.HandleFunc("POST /register", h.Auth.Register)
 	mux.HandleFunc("POST /refresh", h.Auth.Refresh)
