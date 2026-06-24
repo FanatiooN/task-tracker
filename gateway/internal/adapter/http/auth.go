@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	authpb "task-tracker/gen/proto/auth"
-	userpb "task-tracker/gen/proto/user"
 )
 
 type AuthHandler struct {
-	client     authpb.AuthServiceClient
-	userClient userpb.UserServiceClient
+	client authpb.AuthServiceClient
 }
 
-func NewAuthHandler(client authpb.AuthServiceClient, userClient userpb.UserServiceClient) *AuthHandler {
-	return &AuthHandler{client: client, userClient: userClient}
+func NewAuthHandler(client authpb.AuthServiceClient) *AuthHandler {
+	return &AuthHandler{client: client}
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -99,19 +97,10 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResponse, err := h.userClient.CreateUser(r.Context(), &userpb.CreateUserRequest{
-		Name:  req.Name,
-		Email: &req.Email,
-	})
-	if err != nil {
-		writeGRPCError(w, err)
-		return
-	}
-
 	response, err := h.client.RegisterByEmail(r.Context(), &authpb.RegisterByEmailRequest{
 		Email:    req.Email,
 		Password: req.Password,
-		UserId:   userResponse.User.Id,
+		Name:     req.Name,
 	})
 	if err != nil {
 		writeGRPCError(w, err)
