@@ -25,8 +25,9 @@ type AuthService struct {
 }
 
 type AccessClaims struct {
-	UserID uuid.UUID
 	jwt.RegisteredClaims
+
+	UserID uuid.UUID
 }
 
 func NewAuthService(credentials out.CredentialRepository, tokens out.TokenRepository, jwtSecret string, accessTTL time.Duration, refreshTTL time.Duration, userClient userpb.UserServiceClient) *AuthService {
@@ -130,7 +131,6 @@ func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID) 
 		ExpiresAt: expiresAt.Time,
 		IsRevoked: false,
 	})
-
 	if err != nil {
 		return domain.Tokens{}, err
 	}
@@ -151,9 +151,9 @@ func (a AuthService) RefreshToken(ctx context.Context, refreshToken string) (dom
 	}
 
 	if token.ExpiresAt.Before(time.Now()) {
-		err := a.tokens.DeleteByUserID(ctx, token.UserID)
-		if err != nil {
-			return domain.Tokens{}, err
+		deleteErr := a.tokens.DeleteByUserID(ctx, token.UserID)
+		if deleteErr != nil {
+			return domain.Tokens{}, deleteErr
 		}
 
 		return domain.Tokens{}, errors.New("token expired")

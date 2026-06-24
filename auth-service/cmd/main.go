@@ -28,6 +28,7 @@ func main() {
 	}
 
 	defer pool.Close()
+
 	queries := db.New(pool)
 
 	credRepo := postgres.NewCredentialRepository(queries)
@@ -65,7 +66,9 @@ func main() {
 	select {
 	case <-sigChan:
 		grpcServer.GracefulStop()
-		userConn.Close()
+
+		_ = userConn.Close()
+
 		return
 	case err := <-errChan:
 		log.Fatal(err)

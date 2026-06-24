@@ -9,8 +9,9 @@ import (
 )
 
 type AuthServer struct {
-	service in.AuthService
 	auth.UnimplementedAuthServiceServer
+
+	service in.AuthService
 }
 
 func NewAuthServer(service in.AuthService) *AuthServer {

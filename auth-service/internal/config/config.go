@@ -46,9 +46,8 @@ func NewConfig() *Config {
 
 func ttlDuration(ttl, defaultTtl string) time.Duration {
 	dur, err := time.ParseDuration(getEnv(ttl, defaultTtl))
-
 	if err != nil {
-		dur, err = time.ParseDuration(defaultTtl)
+		dur, _ = time.ParseDuration(defaultTtl)
 	}
 
 	return dur
