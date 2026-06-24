@@ -121,6 +121,8 @@ func (a AuthService) generateAccessToken(ctx context.Context, userID uuid.UUID) 
 	hash := sha256.Sum256([]byte(refreshToken))
 	tokenHash := hex.EncodeToString(hash[:])
 
+	_ = a.tokens.DeleteByUserID(ctx, userID)
+
 	err = a.tokens.Save(ctx, domain.RefreshToken{
 		ID:        uuid.New(),
 		UserID:    userID,
