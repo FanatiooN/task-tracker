@@ -62,10 +62,11 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		server.Shutdown(ctx)
-		userConn.Close()
-		taskConn.Close()
-		authConn.Close()
+		_ = server.Shutdown(ctx)
+		_ = userConn.Close()
+		_ = taskConn.Close()
+		_ = authConn.Close()
+
 		return
 	case err := <-errChan:
 		log.Fatal(err)
