@@ -5,7 +5,6 @@ import (
 	"task-tracker/auth-service/internal/port/in"
 	"task-tracker/gen/proto/auth"
 
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -38,13 +37,9 @@ func (a AuthServer) LoginByEmail(ctx context.Context, request *auth.LoginByEmail
 func (a AuthServer) RegisterByEmail(ctx context.Context, request *auth.RegisterByEmailRequest) (*auth.RegisterByEmailResponse, error) {
 	email := request.Email
 	password := request.Password
+	name := request.Name
 
-	userID, err := uuid.Parse(request.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := a.service.RegisterByEmail(ctx, userID, email, password)
+	response, err := a.service.RegisterByEmail(ctx, name, email, password)
 	if err != nil {
 		return nil, err
 	}
