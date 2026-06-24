@@ -25,8 +25,8 @@ const (
 type RegisterByEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,16 +68,16 @@ func (x *RegisterByEmailRequest) GetEmail() string {
 	return ""
 }
 
-func (x *RegisterByEmailRequest) GetUserId() string {
+func (x *RegisterByEmailRequest) GetPassword() string {
 	if x != nil {
-		return x.UserId
+		return x.Password
 	}
 	return ""
 }
 
-func (x *RegisterByEmailRequest) GetPassword() string {
+func (x *RegisterByEmailRequest) GetName() string {
 	if x != nil {
-		return x.Password
+		return x.Name
 	}
 	return ""
 }
@@ -470,11 +470,11 @@ var File_proto_auth_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x15proto/auth/auth.proto\x12\x04auth\x1a\x1bgoogle/protobuf/empty.proto\"c\n" +
+	"\x15proto/auth/auth.proto\x12\x04auth\x1a\x1bgoogle/protobuf/empty.proto\"d\n" +
 	"\x16RegisterByEmailRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword\"a\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04nameJ\x04\b\x02\x10\x03\"a\n" +
 	"\x17RegisterByEmailResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"G\n" +
