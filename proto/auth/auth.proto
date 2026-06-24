@@ -17,8 +17,9 @@ service AuthService {
 
 message RegisterByEmailRequest {
   string email = 1;
-  string user_id = 2;
+  reserved 2; // remove user_id
   string password = 3;
+  string name = 4;
 }
 message RegisterByEmailResponse {
   string access_token = 1;
