@@ -17,6 +17,8 @@ type Config struct {
 	DBPassword string
 	DBName     string
 
+	UserServiceAddr string
+
 	JWTSecret     string
 	JWTAccessTTL  time.Duration
 	JWTRefreshTTL time.Duration
@@ -33,6 +35,8 @@ func NewConfig() *Config {
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 		DBName:     getEnv("DB_NAME", "postgres"),
+
+		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 
 		JWTSecret:     getEnv("JWT_SECRET", "supersecret"),
 		JWTAccessTTL:  ttlDuration("JWT_ACCESS_TTL", "1m"),
