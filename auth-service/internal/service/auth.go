@@ -60,6 +60,11 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 }
 
 func (a AuthService) RegisterByEmail(ctx context.Context, name, email, password string) (domain.Tokens, error) {
+	_, err := a.credentials.FindByEmail(ctx, email)
+	if err == nil {
+		return domain.Tokens{}, errors.New("email already registered")
+	}
+
 	createdUser, err := a.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
 		Name:  name,
 		Email: &email,
