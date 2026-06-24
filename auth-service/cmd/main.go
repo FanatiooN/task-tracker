@@ -33,7 +33,12 @@ func main() {
 	credRepo := postgres.NewCredentialRepository(queries)
 	tokenRepo := postgres.NewTokenRepository(queries)
 
-	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL)
+	userClient, userConn, err := grpcadapter.NewUserClient(conf.UserServiceAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient)
 	server := grpcadapter.NewAuthServer(authService)
 
 	grpcServer := grpc.NewServer()
@@ -60,6 +65,7 @@ func main() {
 	select {
 	case <-sigChan:
 		grpcServer.GracefulStop()
+		userConn.Close()
 		return
 	case err := <-errChan:
 		log.Fatal(err)
