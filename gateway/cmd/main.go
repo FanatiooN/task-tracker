@@ -35,7 +35,7 @@ func main() {
 	router := httpadapter.NewRouter(httpadapter.Handlers{
 		User: httpadapter.NewUserHandler(userClient),
 		Task: httpadapter.NewTaskHandler(taskClient),
-		Auth: httpadapter.NewAuthHandler(authClient, userClient),
+		Auth: httpadapter.NewAuthHandler(authClient),
 	}, authClient)
 
 	log.Printf("gateway started, port = %s", conf.Port)
