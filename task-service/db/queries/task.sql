@@ -1,7 +1,7 @@
 -- name: CreateTask :one
-INSERT INTO tasks (user_id, title, description, status)
-VALUES ($1, $2, $3, $4)
-RETURNING id, title, description, status;
+INSERT INTO tasks (user_id, title, description)
+VALUES ($1, $2, $3)
+RETURNING *;
 
 -- name: GetTask :one
 SELECT * FROM tasks
@@ -19,10 +19,10 @@ LIMIT $4;
 UPDATE tasks
 SET title = $2, description = $3, status = $4, updated_at = now()
 WHERE deleted_at IS NULL AND id = $1
-RETURNING id, title, description, status;
+RETURNING *;
 
 -- name: DeleteTasks :many
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()
 WHERE deleted_at IS NULL and id = ANY($1::uuid[])
-RETURNING id, title, description, status;
+RETURNING *;

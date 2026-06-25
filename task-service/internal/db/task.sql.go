@@ -14,38 +14,29 @@ import (
 )
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO tasks (user_id, title, description, status)
-VALUES ($1, $2, $3, $4)
-RETURNING id, title, description, status
+INSERT INTO tasks (user_id, title, description)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, title, description, status, created_at, updated_at, deleted_at
 `
 
 type CreateTaskParams struct {
 	UserID      uuid.UUID   `json:"user_id"`
 	Title       string      `json:"title"`
 	Description pgtype.Text `json:"description"`
-	Status      TaskStatus  `json:"status"`
 }
 
-type CreateTaskRow struct {
-	ID          uuid.UUID   `json:"id"`
-	Title       string      `json:"title"`
-	Description pgtype.Text `json:"description"`
-	Status      TaskStatus  `json:"status"`
-}
-
-func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (CreateTaskRow, error) {
-	row := q.db.QueryRow(ctx, createTask,
-		arg.UserID,
-		arg.Title,
-		arg.Description,
-		arg.Status,
-	)
-	var i CreateTaskRow
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
+	row := q.db.QueryRow(ctx, createTask, arg.UserID, arg.Title, arg.Description)
+	var i Task
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Title,
 		&i.Description,
 		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -54,30 +45,27 @@ const deleteTasks = `-- name: DeleteTasks :many
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()
 WHERE deleted_at IS NULL and id = ANY($1::uuid[])
-RETURNING id, title, description, status
+RETURNING id, user_id, title, description, status, created_at, updated_at, deleted_at
 `
 
-type DeleteTasksRow struct {
-	ID          uuid.UUID   `json:"id"`
-	Title       string      `json:"title"`
-	Description pgtype.Text `json:"description"`
-	Status      TaskStatus  `json:"status"`
-}
-
-func (q *Queries) DeleteTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]DeleteTasksRow, error) {
+func (q *Queries) DeleteTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]Task, error) {
 	rows, err := q.db.Query(ctx, deleteTasks, dollar_1)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []DeleteTasksRow
+	var items []Task
 	for rows.Next() {
-		var i DeleteTasksRow
+		var i Task
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
 			&i.Title,
 			&i.Description,
 			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -164,7 +152,7 @@ const updateTask = `-- name: UpdateTask :one
 UPDATE tasks
 SET title = $2, description = $3, status = $4, updated_at = now()
 WHERE deleted_at IS NULL AND id = $1
-RETURNING id, title, description, status
+RETURNING id, user_id, title, description, status, created_at, updated_at, deleted_at
 `
 
 type UpdateTaskParams struct {
@@ -174,26 +162,23 @@ type UpdateTaskParams struct {
 	Status      TaskStatus  `json:"status"`
 }
 
-type UpdateTaskRow struct {
-	ID          uuid.UUID   `json:"id"`
-	Title       string      `json:"title"`
-	Description pgtype.Text `json:"description"`
-	Status      TaskStatus  `json:"status"`
-}
-
-func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (UpdateTaskRow, error) {
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {
 	row := q.db.QueryRow(ctx, updateTask,
 		arg.ID,
 		arg.Title,
 		arg.Description,
 		arg.Status,
 	)
-	var i UpdateTaskRow
+	var i Task
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Title,
 		&i.Description,
 		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
