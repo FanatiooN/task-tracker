@@ -65,8 +65,8 @@ func (t TaskService) ListTasks(ctx context.Context, params domain.ListTasksParam
 	return tasks, cursor, nil
 }
 
-func (t TaskService) UpdateTask(ctx context.Context, id uuid.UUID, task domain.Task) (domain.Task, error) {
-	existedTask, err := t.repository.FindByID(ctx, id)
+func (t TaskService) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
+	existedTask, err := t.repository.FindByID(ctx, task.ID)
 	if err != nil {
 		return domain.Task{}, err
 	}

@@ -11,6 +11,6 @@ type TaskService interface {
 	CreateTask(ctx context.Context, task domain.Task) (domain.Task, error)
 	GetTask(ctx context.Context, id uuid.UUID) (domain.Task, error)
 	ListTasks(ctx context.Context, params domain.ListTasksParams) ([]domain.Task, string, error)
-	UpdateTask(ctx context.Context, id uuid.UUID, task domain.Task) (domain.Task, error)
+	UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error)
 	DeleteTasks(ctx context.Context, id []uuid.UUID) error
 }
