@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -88,41 +89,6 @@ func (q *Queries) DeleteTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]Dele
 	return items, nil
 }
 
-const getCompletedTasksTodayByUserID = `-- name: GetCompletedTasksTodayByUserID :many
-SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1 AND status = 'done'
-AND updated_at >= date_trunc('day', now() AT TIME ZONE 'UTC')
-`
-
-func (q *Queries) GetCompletedTasksTodayByUserID(ctx context.Context, userID uuid.UUID) ([]Task, error) {
-	rows, err := q.db.Query(ctx, getCompletedTasksTodayByUserID, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Task
-	for rows.Next() {
-		var i Task
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Title,
-			&i.Description,
-			&i.Status,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTask = `-- name: GetTask :one
 SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
 WHERE deleted_at IS NULL AND id = $1
@@ -144,47 +110,29 @@ func (q *Queries) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
 	return i, err
 }
 
-const getTasksByUserID = `-- name: GetTasksByUserID :many
+const listTasks = `-- name: ListTasks :many
 SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
 WHERE deleted_at IS NULL AND user_id = $1
+AND ($2::task_status IS NULL OR status = $2)
+AND ($3::timestamptz IS NULL OR created_at < $3)
+ORDER BY created_at DESC
+LIMIT $4
 `
 
-func (q *Queries) GetTasksByUserID(ctx context.Context, userID uuid.UUID) ([]Task, error) {
-	rows, err := q.db.Query(ctx, getTasksByUserID, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Task
-	for rows.Next() {
-		var i Task
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Title,
-			&i.Description,
-			&i.Status,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type ListTasksParams struct {
+	UserID  uuid.UUID  `json:"user_id"`
+	Column2 TaskStatus `json:"column_2"`
+	Column3 time.Time  `json:"column_3"`
+	Limit   int32      `json:"limit"`
 }
 
-const getTasksInProgressByUserID = `-- name: GetTasksInProgressByUserID :many
-SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1 AND status = 'in_progress'
-`
-
-func (q *Queries) GetTasksInProgressByUserID(ctx context.Context, userID uuid.UUID) ([]Task, error) {
-	rows, err := q.db.Query(ctx, getTasksInProgressByUserID, userID)
+func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, listTasks,
+		arg.UserID,
+		arg.Column2,
+		arg.Column3,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
