@@ -46,9 +46,17 @@ func (t TaskService) GetTask(ctx context.Context, id uuid.UUID) (domain.Task, er
 	return task, nil
 }
 
-func (t TaskService) ListTasks(ctx context.Context, params domain.ListTasksParams) ([]domain.Task, string, error) {
+func (t TaskService) ListTasks(ctx context.Context, pageToken string, params domain.ListTasksParams) ([]domain.Task, string, error) {
 	if params.PageSize > domain.MaxPageSize {
 		return nil, "", errors.New("page size too large")
+	}
+
+	if pageToken != "" {
+		cursor, err := decodeToken(pageToken)
+		if err != nil {
+			return nil, "", err
+		}
+		params.Cursor = cursor
 	}
 
 	tasks, err := t.repository.List(ctx, params)
@@ -59,10 +67,11 @@ func (t TaskService) ListTasks(ctx context.Context, params domain.ListTasksParam
 	var cursor string
 
 	if int32(len(tasks)) == params.PageSize {
-		cursor = "" // TODO: pagination
+		cursor = encodeToken(tasks[len(tasks)-1].CreatedAt)
 	}
 
 	return tasks, cursor, nil
+
 }
 
 func (t TaskService) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
