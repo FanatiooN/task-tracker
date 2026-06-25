@@ -133,10 +133,15 @@ func (t TaskServer) UpdateTask(ctx context.Context, request *taskpb.UpdateTaskRe
 		title = *request.Title
 	}
 
+	var status domain.TaskStatus
+	if request.Status != nil {
+		status = *convertProtoToDomainStatus(request.Status)
+	}
+
 	response, err := t.service.UpdateTask(ctx, domain.Task{
 		ID:          taskID,
 		Title:       title,
-		Status:      *convertProtoToDomainStatus(request.Status),
+		Status:      status,
 		Description: description,
 	})
 	if err != nil {
