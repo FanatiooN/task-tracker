@@ -162,6 +162,7 @@ func (t TaskServer) DeleteTasks(ctx context.Context, request *taskpb.DeleteTasks
 		if err != nil {
 			return nil, err
 		}
+
 		ids = append(ids, parsedId)
 	}
 
@@ -169,11 +170,11 @@ func (t TaskServer) DeleteTasks(ctx context.Context, request *taskpb.DeleteTasks
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func convertDomainToProtoStatus(status domain.TaskStatus) taskpb.TaskStatus {
-
 	switch status {
 	case domain.TaskStatusInProgress:
 		return taskpb.TaskStatus_TASK_STATUS_IN_PROGRESS

@@ -13,9 +13,11 @@ func decodeToken(token string) (*time.Time, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	t, err := time.Parse(time.RFC3339Nano, string(b))
 	if err != nil {
 		return nil, err
 	}
+
 	return &t, nil
 }

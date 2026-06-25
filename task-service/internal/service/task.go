@@ -56,6 +56,7 @@ func (t TaskService) ListTasks(ctx context.Context, pageToken string, params dom
 		if err != nil {
 			return nil, "", err
 		}
+
 		params.Cursor = cursor
 	}
 
@@ -71,7 +72,6 @@ func (t TaskService) ListTasks(ctx context.Context, pageToken string, params dom
 	}
 
 	return tasks, cursor, nil
-
 }
 
 func (t TaskService) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
