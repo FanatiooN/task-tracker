@@ -7,18 +7,13 @@ RETURNING id, title, description, status;
 SELECT * FROM tasks
 WHERE deleted_at IS NULL AND id = $1;
 
--- name: GetTasksByUserID :many
+-- name: ListTasks :many
 SELECT * FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1;
-
--- name: GetTasksInProgressByUserID :many
-SELECT * FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1 AND status = 'in_progress';
-
--- name: GetCompletedTasksTodayByUserID :many
-SELECT * FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1 AND status = 'done'
-AND updated_at >= date_trunc('day', now() AT TIME ZONE 'UTC');
+WHERE deleted_at IS NULL AND user_id = $1
+AND ($2::task_status IS NULL OR status = $2)
+AND ($3::timestamptz IS NULL OR created_at < $3)
+ORDER BY created_at DESC
+LIMIT $4;
 
 -- name: UpdateTask :one
 UPDATE tasks
