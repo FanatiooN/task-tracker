@@ -17,8 +17,9 @@ func NewTaskHandler(client taskpb.TaskServiceClient) *TaskHandler {
 }
 
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(string)
+
 	var req struct {
-		UserId      string  `json:"userId"`
 		Title       string  `json:"title"`
 		Description *string `json:"description"`
 	}
@@ -29,7 +30,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := h.client.CreateTask(r.Context(), &taskpb.CreateTaskRequest{
-		UserId:      req.UserId,
+		UserId:      userID,
 		Title:       req.Title,
 		Description: req.Description,
 	})
@@ -60,12 +61,12 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
-	ownerId := strings.TrimSpace(r.URL.Query().Get("ownerId"))
+	userID := r.Context().Value("userID").(string)
 	taskStatus := strings.TrimSpace(r.URL.Query().Get("taskStatus"))
 	pageSize := strings.TrimSpace(r.URL.Query().Get("pageSize"))
 	pageToken := strings.TrimSpace(r.URL.Query().Get("pageToken"))
 
-	if ownerId == "" {
+	if userID == "" {
 		writeError(w, http.StatusBadRequest, "missing required parameters")
 		return
 	}
@@ -99,7 +100,7 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := h.client.ListTasks(r.Context(), &taskpb.ListTasksRequest{
-		UserId:    ownerId,
+		UserId:    userID,
 		Status:    status,
 		PageSize:  size,
 		PageToken: pageToken,
