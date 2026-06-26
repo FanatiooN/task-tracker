@@ -39,8 +39,8 @@ func NewConfig() *Config {
 		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 
 		JWTSecret:     getEnv("JWT_SECRET", "supersecret"),
-		JWTAccessTTL:  ttlDuration("JWT_ACCESS_TTL", "1m"),
-		JWTRefreshTTL: ttlDuration("JWT_REFRESH_TTL", "30m"),
+		JWTAccessTTL:  ttlDuration("JWT_ACCESS_TTL", "15m"),
+		JWTRefreshTTL: ttlDuration("JWT_REFRESH_TTL", "60m"),
 	}
 }
 
