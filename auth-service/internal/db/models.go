@@ -17,6 +17,13 @@ type Credential struct {
 	PasswordHash string    `json:"password_hash"`
 }
 
+type OauthCredential struct {
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"user_id"`
+	Provider   string    `json:"provider"`
+	ProviderID string    `json:"provider_id"`
+}
+
 type RefreshToken struct {
 	ID        uuid.UUID   `json:"id"`
 	UserID    uuid.UUID   `json:"user_id"`
