@@ -9,6 +9,8 @@ import (
 )
 
 type Config struct {
+	OAuth OAuthConfig
+
 	GRPCPort string
 
 	DBHost     string
@@ -24,10 +26,22 @@ type Config struct {
 	JWTRefreshTTL time.Duration
 }
 
+type OAuthConfig struct {
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURI  string
+}
+
 func NewConfig() *Config {
 	_ = godotenv.Load("auth-service/.env")
 
 	return &Config{
+		OAuth: OAuthConfig{
+			GoogleClientID:     getEnv("OAUTH_GOOGLE_CLIENT_ID", "id"),
+			GoogleClientSecret: getEnv("OAUTH_GOOGLE_CLIENT_SECRET", "secret"),
+			GoogleRedirectURI:  getEnv("OAUTH_GOOGLE_REDIRECT_URI", "http://localhost:3000/login/google"),
+		},
+
 		GRPCPort: getEnv("GRPC_PORT", ":50053"),
 
 		DBHost:     getEnv("DB_HOST", "localhost"),
@@ -40,7 +54,7 @@ func NewConfig() *Config {
 
 		JWTSecret:     getEnv("JWT_SECRET", "supersecret"),
 		JWTAccessTTL:  ttlDuration("JWT_ACCESS_TTL", "15m"),
-		JWTRefreshTTL: ttlDuration("JWT_REFRESH_TTL", "60m"),
+		JWTRefreshTTL: ttlDuration("JWT_REFRESH_TTL", "30m"),
 	}
 }
 
