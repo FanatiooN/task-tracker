@@ -7,6 +7,10 @@ import (
 	authpb "task-tracker/gen/proto/auth"
 )
 
+type contextKey string
+
+const userIDKey contextKey = "userID"
+
 func AuthMiddleware(authClient authpb.AuthServiceClient) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +28,7 @@ func AuthMiddleware(authClient authpb.AuthServiceClient) func(http.Handler) http
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), "userID", resp.UserId)
+			ctx := context.WithValue(r.Context(), userIDKey, resp.UserId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
