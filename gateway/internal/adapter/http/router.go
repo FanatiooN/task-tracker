@@ -34,7 +34,7 @@ func NewRouter(h Handlers, authClient authpb.AuthServiceClient) http.Handler {
 	mux.Handle("GET /tasks/{id}", auth(http.HandlerFunc(h.Task.GetTask)))
 	mux.Handle("GET /tasks", auth(http.HandlerFunc(h.Task.ListTasks)))
 	mux.Handle("PUT /tasks/{id}", auth(http.HandlerFunc(h.Task.UpdateTask)))
-	mux.Handle("DELETE /tasks/{id}", auth(http.HandlerFunc(h.Task.DeleteTasks)))
+	mux.Handle("DELETE /tasks", auth(http.HandlerFunc(h.Task.DeleteTasks)))
 
 	return mux
 }
