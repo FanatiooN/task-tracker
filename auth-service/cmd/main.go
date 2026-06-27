@@ -10,6 +10,7 @@ import (
 	"task-tracker/auth-service/internal/adapter/google"
 	grpcadapter "task-tracker/auth-service/internal/adapter/grpc"
 	"task-tracker/auth-service/internal/adapter/postgres"
+	"task-tracker/auth-service/internal/adapter/telegram"
 	"task-tracker/auth-service/internal/config"
 	"task-tracker/auth-service/internal/db"
 	"task-tracker/auth-service/internal/service"
@@ -42,8 +43,9 @@ func main() {
 	}
 
 	googleProvider := google.NewOAuthProvider(conf.OAuth.GoogleClientID, conf.OAuth.GoogleClientSecret)
+	telegramProvider := telegram.NewOAuthProvider(conf.OAuth.TelegramClientID)
 
-	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient, googleProvider, oauthCredRepo)
+	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient, googleProvider, telegramProvider, oauthCredRepo)
 	server := grpcadapter.NewAuthServer(authService)
 
 	grpcServer := grpc.NewServer()
