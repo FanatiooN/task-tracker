@@ -36,7 +36,7 @@ func main() {
 		User:  httpadapter.NewUserHandler(userClient),
 		Task:  httpadapter.NewTaskHandler(taskClient),
 		Auth:  httpadapter.NewAuthHandler(authClient),
-		OAuth: httpadapter.NewOAuthHandler(authClient, conf.OAuth.GoogleClientID, conf.OAuth.GoogleRedirectURI),
+		OAuth: httpadapter.NewOAuthHandler(authClient, conf.OAuth.GoogleClientID, conf.OAuth.GoogleRedirectURI, conf.FrontendAddr),
 	}, authClient)
 
 	log.Printf("gateway started, port = %s", conf.Port)
