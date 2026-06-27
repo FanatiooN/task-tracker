@@ -70,6 +70,7 @@
         <button onclick="login()">Login</button>
         <button class="google" onclick="loginGoogle()">Login with Google</button>
       </div>
+      <div id="telegram-widget" style="margin-top:8px"></div>
       <div id="login-response" class="response hidden"></div>
     </div>
 
@@ -189,6 +190,7 @@
 
   // Init
   window.addEventListener('load', () => {
+    initTelegramWidget()
     if (accessToken) showApp()
 
     // Handle Google OAuth callback
@@ -284,6 +286,35 @@
   function loginGoogle() {
     window.location.href = API + '/login/google'
   }
+
+  function initTelegramWidget() {
+    const container = document.getElementById('telegram-widget')
+
+    const btn = document.createElement('button')
+    btn.className = 'tg-auth-button'
+    btn.textContent = 'Log in with Telegram'
+    container.appendChild(btn)
+
+    const script = document.createElement('script')
+    script.src = 'https://telegram.org/js/telegram-login.js'
+    script.setAttribute('data-client-id', '8995212014')
+    script.setAttribute('data-onauth', 'onTelegramAuth(data)')
+    script.setAttribute('data-request-access', 'write')
+    script.async = true
+    container.appendChild(script)
+  }
+
+  async function onTelegramAuth(data) {
+    if (!data.id_token) {
+      console.error('No id_token in Telegram response', data)
+      return
+    }
+
+    const r = await request('POST', '/login/telegram', { id_token: data.id_token }, 'login-response')
+    if (r.ok) setTokens(r.data.access_token, r.data.refresh_token)
+  }
+
+  window.onTelegramAuth = onTelegramAuth
 
   async function refreshToken() {
     const r = await request('POST', '/refresh', { refresh_token: refreshTokenVal }, 'session-response')
