@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	authpb "task-tracker/gen/proto/auth"
@@ -13,10 +14,11 @@ type OAuthHandler struct {
 	client            authpb.AuthServiceClient
 	googleClientID    string
 	googleRedirectURI string
+	frontendURL       string
 }
 
-func NewOAuthHandler(client authpb.AuthServiceClient, googleClientID, googleRedirectURI string) *OAuthHandler {
-	return &OAuthHandler{client: client, googleClientID: googleClientID, googleRedirectURI: googleRedirectURI}
+func NewOAuthHandler(client authpb.AuthServiceClient, googleClientID, googleRedirectURI, frontendURL string) *OAuthHandler {
+	return &OAuthHandler{client: client, googleClientID: googleClientID, googleRedirectURI: googleRedirectURI, frontendURL: frontendURL}
 }
 
 func (h *OAuthHandler) LoginWithGoogle(w http.ResponseWriter, r *http.Request) {
@@ -44,8 +46,10 @@ func (h *OAuthHandler) LoginCallbackWithGoogle(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"access_token":  response.AccessToken,
-		"refresh_token": response.RefreshToken,
-	})
+	http.Redirect(w, r, fmt.Sprintf(
+		"%s?access_token=%s&refresh_token=%s",
+		h.frontendURL,
+		response.AccessToken,
+		response.RefreshToken,
+	), http.StatusTemporaryRedirect)
 }

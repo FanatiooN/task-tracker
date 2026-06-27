@@ -13,6 +13,7 @@ type Config struct {
 	UserServiceAddr string
 	TaskServiceAddr string
 	AuthServiceAddr string
+	FrontendAddr    string
 }
 
 type OAuthConfig struct {
@@ -33,6 +34,7 @@ func NewConfig() *Config {
 		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 		TaskServiceAddr: getEnv("TASK_SERVICE_ADDR", "localhost:50052"),
 		AuthServiceAddr: getEnv("AUTH_SERVICE_ADDR", "localhost:50053"),
+		FrontendAddr:    getEnv("FRONTEND_ADDR", "http://localhost:3000"),
 	}
 }
 
