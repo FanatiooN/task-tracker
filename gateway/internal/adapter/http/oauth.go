@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -52,4 +53,29 @@ func (h *OAuthHandler) LoginCallbackWithGoogle(w http.ResponseWriter, r *http.Re
 		response.AccessToken,
 		response.RefreshToken,
 	), http.StatusTemporaryRedirect)
+}
+
+func (h *OAuthHandler) LoginWithTelegram(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		IDToken string `json:"id_token"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	response, err := h.client.LoginByOAuth(r.Context(), &authpb.LoginByOAuthRequest{
+		Provider: "telegram",
+		Code:     req.IDToken,
+	})
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{
+		"access_token":  response.AccessToken,
+		"refresh_token": response.RefreshToken,
+	})
 }
