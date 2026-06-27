@@ -33,9 +33,10 @@ func main() {
 	}
 
 	router := httpadapter.NewRouter(httpadapter.Handlers{
-		User: httpadapter.NewUserHandler(userClient),
-		Task: httpadapter.NewTaskHandler(taskClient),
-		Auth: httpadapter.NewAuthHandler(authClient),
+		User:  httpadapter.NewUserHandler(userClient),
+		Task:  httpadapter.NewTaskHandler(taskClient),
+		Auth:  httpadapter.NewAuthHandler(authClient),
+		OAuth: httpadapter.NewOAuthHandler(authClient, conf.OAuth.GoogleClientID, conf.OAuth.GoogleRedirectURI),
 	}, authClient)
 
 	log.Printf("gateway started, port = %s", conf.Port)
