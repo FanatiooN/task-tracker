@@ -35,6 +35,22 @@ func (a AuthServer) LoginByEmail(ctx context.Context, request *auth.LoginByEmail
 	}, nil
 }
 
+func (a AuthServer) LoginByOAuth(ctx context.Context, request *auth.LoginByOAuthRequest) (*auth.LoginByOAuthResponse, error) {
+	provider := request.Provider
+	code := request.Code
+	redirectURI := request.RedirectUri
+
+	response, err := a.service.LoginByOAuth(ctx, provider, code, redirectURI)
+	if err != nil {
+		return nil, err
+	}
+
+	return &auth.LoginByOAuthResponse{
+		AccessToken:  response.AccessToken,
+		RefreshToken: response.RefreshToken,
+	}, nil
+}
+
 func (a AuthServer) RegisterByEmail(ctx context.Context, request *auth.RegisterByEmailRequest) (*auth.RegisterByEmailResponse, error) {
 	email := request.Email
 	password := request.Password
