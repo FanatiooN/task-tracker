@@ -14,8 +14,9 @@ import (
 )
 
 type UserServer struct {
-	service in.UserService
 	userpb.UnimplementedUserServiceServer
+
+	service in.UserService
 }
 
 func (u UserServer) CreateUser(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
@@ -36,6 +37,7 @@ func (u UserServer) CreateUser(ctx context.Context, request *userpb.CreateUserRe
 		CreatedAt: timestamppb.New(response.CreatedAt),
 		UpdatedAt: timestamppb.New(response.UpdatedAt),
 	}
+
 	return &userpb.CreateUserResponse{User: &createResponse}, nil
 }
 
@@ -57,6 +59,7 @@ func (u UserServer) GetUser(ctx context.Context, request *userpb.GetUserRequest)
 		CreatedAt: timestamppb.New(response.CreatedAt),
 		UpdatedAt: timestamppb.New(response.UpdatedAt),
 	}
+
 	return &userpb.GetUserResponse{User: &user}, nil
 }
 
@@ -85,6 +88,7 @@ func (u UserServer) UpdateUser(ctx context.Context, request *userpb.UpdateUserRe
 		CreatedAt: timestamppb.New(response.CreatedAt),
 		UpdatedAt: timestamppb.New(response.UpdatedAt),
 	}
+
 	return &userpb.UpdateUserResponse{User: &user}, nil
 }
 
