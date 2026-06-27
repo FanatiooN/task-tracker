@@ -224,19 +224,17 @@ func (a AuthService) ValidateToken(ctx context.Context, accessToken string) (uui
 }
 
 func (a AuthService) LoginByOAuth(ctx context.Context, provider, code, redirectURI string) (domain.Tokens, error) {
-	userInfo, err := a.oauthProvider.GetUserInfo(ctx, provider, code, redirectURI)
-	if err != nil {
-		return domain.Tokens{}, err
+	userInfo, getErr := a.oauthProvider.GetUserInfo(ctx, provider, code, redirectURI)
+	if getErr != nil {
+		return domain.Tokens{}, getErr
 	}
 
-	creds, err := a.oauthCredentials.FindByProvider(ctx, provider, userInfo.ID)
-
-	if err != nil {
+	creds, findErr := a.oauthCredentials.FindByProvider(ctx, provider, userInfo.ID)
+	if findErr != nil {
 		createdUser, err := a.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
 			Name:  userInfo.Name,
 			Email: userInfo.Email,
 		})
-
 		if err != nil {
 			return domain.Tokens{}, err
 		}

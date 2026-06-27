@@ -21,10 +21,10 @@ func NewOAuthProvider(clientID, clientSecret string) *OAuthProvider {
 	}
 }
 
-func (O OAuthProvider) GetUserInfo(ctx context.Context, provider, code, redirectURI string) (domain.OAuthUserInfo, error) {
+func (o OAuthProvider) GetUserInfo(ctx context.Context, provider, code, redirectURI string) (domain.OAuthUserInfo, error) {
 	oAuthConf := oauth2.Config{
-		ClientID:     O.clientID,
-		ClientSecret: O.clientSecret,
+		ClientID:     o.clientID,
+		ClientSecret: o.clientSecret,
 		Endpoint:     google.Endpoint,
 		RedirectURL:  redirectURI,
 		Scopes:       []string{"openid", "email", "profile"},
@@ -36,11 +36,14 @@ func (O OAuthProvider) GetUserInfo(ctx context.Context, provider, code, redirect
 	}
 
 	client := oAuthConf.Client(ctx, token)
+
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		return domain.OAuthUserInfo{}, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	var req struct {
 		ID    string  `json:"id"`

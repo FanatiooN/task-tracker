@@ -14,14 +14,14 @@ func NewOAuthCredential(queries *db.Queries) *OAuthCredential {
 	return &OAuthCredential{queries: queries}
 }
 
-func (O OAuthCredential) Save(ctx context.Context, credential domain.OAuthCredential) error {
+func (o OAuthCredential) Save(ctx context.Context, credential domain.OAuthCredential) error {
 	params := db.CreateOAuthCredentialParams{
 		UserID:     credential.UserID,
 		Provider:   credential.Provider,
 		ProviderID: credential.ProviderID,
 	}
 
-	_, err := O.queries.CreateOAuthCredential(ctx, params)
+	_, err := o.queries.CreateOAuthCredential(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -29,13 +29,13 @@ func (O OAuthCredential) Save(ctx context.Context, credential domain.OAuthCreden
 	return nil
 }
 
-func (O OAuthCredential) FindByProvider(ctx context.Context, provider, providerID string) (domain.OAuthCredential, error) {
+func (o OAuthCredential) FindByProvider(ctx context.Context, provider, providerID string) (domain.OAuthCredential, error) {
 	params := db.FindByProviderParams{
 		Provider:   provider,
 		ProviderID: providerID,
 	}
 
-	row, err := O.queries.FindByProvider(ctx, params)
+	row, err := o.queries.FindByProvider(ctx, params)
 	if err != nil {
 		return domain.OAuthCredential{}, err
 	}

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"task-tracker/auth-service/internal/adapter/google"
 	grpcadapter "task-tracker/auth-service/internal/adapter/grpc"
 	"task-tracker/auth-service/internal/adapter/postgres"
 	"task-tracker/auth-service/internal/config"
@@ -32,6 +33,7 @@ func main() {
 	queries := db.New(pool)
 
 	credRepo := postgres.NewCredentialRepository(queries)
+	oauthCredRepo := postgres.NewOAuthCredential(queries)
 	tokenRepo := postgres.NewTokenRepository(queries)
 
 	userClient, userConn, err := grpcadapter.NewUserClient(conf.UserServiceAddr)
@@ -39,7 +41,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient)
+	googleProvider := google.NewOAuthProvider(conf.OAuth.GoogleClientID, conf.OAuth.GoogleClientSecret)
+
+	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient, googleProvider, oauthCredRepo)
 	server := grpcadapter.NewAuthServer(authService)
 
 	grpcServer := grpc.NewServer()
