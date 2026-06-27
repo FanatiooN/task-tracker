@@ -6,9 +6,10 @@ import (
 )
 
 type Handlers struct {
-	User *UserHandler
-	Task *TaskHandler
-	Auth *AuthHandler
+	User  *UserHandler
+	Task  *TaskHandler
+	Auth  *AuthHandler
+	OAuth *OAuthHandler
 }
 
 func NewRouter(h Handlers, authClient authpb.AuthServiceClient) http.Handler {
@@ -19,6 +20,9 @@ func NewRouter(h Handlers, authClient authpb.AuthServiceClient) http.Handler {
 	mux.HandleFunc("POST /login", h.Auth.Login)
 	mux.HandleFunc("POST /register", h.Auth.Register)
 	mux.HandleFunc("POST /refresh", h.Auth.Refresh)
+
+	mux.HandleFunc("GET /login/google", h.OAuth.LoginWithGoogle)
+	mux.HandleFunc("GET /login/google/callback", h.OAuth.LoginCallbackWithGoogle)
 
 	mux.Handle("GET /users/{id}", auth(http.HandlerFunc(h.User.GetUser)))
 	mux.Handle("PUT /users/{id}", auth(http.HandlerFunc(h.User.UpdateUser)))
