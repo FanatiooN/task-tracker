@@ -9,6 +9,7 @@ option go_package = "task-tracker/proto/auth";
 service AuthService {
   rpc RegisterByEmail(RegisterByEmailRequest) returns (RegisterByEmailResponse);
   rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailResponse);
+  rpc LoginByOAuth(LoginByOAuthRequest) returns (LoginByOAuthResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
@@ -32,6 +33,17 @@ message LoginByEmailRequest {
   string password = 2;
 }
 message LoginByEmailResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+
+message LoginByOAuthRequest {
+  string provider = 1;
+  string code = 2;
+  string redirect_uri = 3;
+}
+message LoginByOAuthResponse {
   string access_token = 1;
   string refresh_token = 2;
 }

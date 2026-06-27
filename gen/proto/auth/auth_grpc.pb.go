@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	AuthService_RegisterByEmail_FullMethodName = "/auth.AuthService/RegisterByEmail"
 	AuthService_LoginByEmail_FullMethodName    = "/auth.AuthService/LoginByEmail"
+	AuthService_LoginByOAuth_FullMethodName    = "/auth.AuthService/LoginByOAuth"
 	AuthService_RefreshToken_FullMethodName    = "/auth.AuthService/RefreshToken"
 	AuthService_ValidateToken_FullMethodName   = "/auth.AuthService/ValidateToken"
 	AuthService_Logout_FullMethodName          = "/auth.AuthService/Logout"
@@ -33,6 +34,7 @@ const (
 type AuthServiceClient interface {
 	RegisterByEmail(ctx context.Context, in *RegisterByEmailRequest, opts ...grpc.CallOption) (*RegisterByEmailResponse, error)
 	LoginByEmail(ctx context.Context, in *LoginByEmailRequest, opts ...grpc.CallOption) (*LoginByEmailResponse, error)
+	LoginByOAuth(ctx context.Context, in *LoginByOAuthRequest, opts ...grpc.CallOption) (*LoginByOAuthResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -60,6 +62,16 @@ func (c *authServiceClient) LoginByEmail(ctx context.Context, in *LoginByEmailRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginByEmailResponse)
 	err := c.cc.Invoke(ctx, AuthService_LoginByEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) LoginByOAuth(ctx context.Context, in *LoginByOAuthRequest, opts ...grpc.CallOption) (*LoginByOAuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginByOAuthResponse)
+	err := c.cc.Invoke(ctx, AuthService_LoginByOAuth_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +114,7 @@ func (c *authServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts 
 type AuthServiceServer interface {
 	RegisterByEmail(context.Context, *RegisterByEmailRequest) (*RegisterByEmailResponse, error)
 	LoginByEmail(context.Context, *LoginByEmailRequest) (*LoginByEmailResponse, error)
+	LoginByOAuth(context.Context, *LoginByOAuthRequest) (*LoginByOAuthResponse, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error)
 	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
@@ -120,6 +133,9 @@ func (UnimplementedAuthServiceServer) RegisterByEmail(context.Context, *Register
 }
 func (UnimplementedAuthServiceServer) LoginByEmail(context.Context, *LoginByEmailRequest) (*LoginByEmailResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LoginByEmail not implemented")
+}
+func (UnimplementedAuthServiceServer) LoginByOAuth(context.Context, *LoginByOAuthRequest) (*LoginByOAuthResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LoginByOAuth not implemented")
 }
 func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
@@ -183,6 +199,24 @@ func _AuthService_LoginByEmail_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).LoginByEmail(ctx, req.(*LoginByEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_LoginByOAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByOAuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).LoginByOAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_LoginByOAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).LoginByOAuth(ctx, req.(*LoginByOAuthRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -255,6 +289,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginByEmail",
 			Handler:    _AuthService_LoginByEmail_Handler,
+		},
+		{
+			MethodName: "LoginByOAuth",
+			Handler:    _AuthService_LoginByOAuth_Handler,
 		},
 		{
 			MethodName: "RefreshToken",
