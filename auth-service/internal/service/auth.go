@@ -22,6 +22,9 @@ type AuthService struct {
 	accessTTL   time.Duration
 	refreshTTL  time.Duration
 	userClient  userpb.UserServiceClient
+
+	oauthProvider    out.OAuthProvider
+	oauthCredentials out.OAuthCredentialRepository
 }
 
 type AccessClaims struct {
@@ -30,14 +33,25 @@ type AccessClaims struct {
 	UserID uuid.UUID
 }
 
-func NewAuthService(credentials out.CredentialRepository, tokens out.TokenRepository, jwtSecret string, accessTTL time.Duration, refreshTTL time.Duration, userClient userpb.UserServiceClient) *AuthService {
+func NewAuthService(
+	credentials out.CredentialRepository,
+	tokens out.TokenRepository,
+	jwtSecret string,
+	accessTTL time.Duration,
+	refreshTTL time.Duration,
+	userClient userpb.UserServiceClient,
+	oauthProvider out.OAuthProvider,
+	oauthCredentials out.OAuthCredentialRepository,
+) *AuthService {
 	return &AuthService{
-		credentials: credentials,
-		tokens:      tokens,
-		jwtSecret:   jwtSecret,
-		accessTTL:   accessTTL,
-		refreshTTL:  refreshTTL,
-		userClient:  userClient,
+		credentials:      credentials,
+		tokens:           tokens,
+		jwtSecret:        jwtSecret,
+		accessTTL:        accessTTL,
+		refreshTTL:       refreshTTL,
+		userClient:       userClient,
+		oauthCredentials: oauthCredentials,
+		oauthProvider:    oauthProvider,
 	}
 }
 
@@ -207,4 +221,52 @@ func (a AuthService) ValidateToken(ctx context.Context, accessToken string) (uui
 	}
 
 	return claims.UserID, nil
+}
+
+func (a AuthService) LoginByOAuth(ctx context.Context, provider, code, redirectURI string) (domain.Tokens, error) {
+	userInfo, err := a.oauthProvider.GetUserInfo(ctx, provider, code, redirectURI)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	creds, err := a.oauthCredentials.FindByProvider(ctx, provider, userInfo.ID)
+
+	if err != nil {
+		createdUser, err := a.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
+			Name:  userInfo.Name,
+			Email: userInfo.Email,
+		})
+
+		if err != nil {
+			return domain.Tokens{}, err
+		}
+
+		userID, err := uuid.Parse(createdUser.User.Id)
+		if err != nil {
+			return domain.Tokens{}, err
+		}
+
+		err = a.oauthCredentials.Save(ctx, domain.OAuthCredential{
+			UserID:     userID,
+			Provider:   provider,
+			ProviderID: userInfo.ID,
+		})
+		if err != nil {
+			return domain.Tokens{}, err
+		}
+
+		tokens, err := a.generateAccessToken(ctx, userID)
+		if err != nil {
+			return domain.Tokens{}, err
+		}
+
+		return tokens, nil
+	}
+
+	tokens, err := a.generateAccessToken(ctx, creds.UserID)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	return tokens, nil
 }
