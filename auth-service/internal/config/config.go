@@ -30,6 +30,9 @@ type OAuthConfig struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleRedirectURI  string
+
+	TelegramClientID     string
+	TelegramClientSecret string
 }
 
 func NewConfig() *Config {
@@ -40,6 +43,9 @@ func NewConfig() *Config {
 			GoogleClientID:     getEnv("OAUTH_GOOGLE_CLIENT_ID", "id"),
 			GoogleClientSecret: getEnv("OAUTH_GOOGLE_CLIENT_SECRET", "secret"),
 			GoogleRedirectURI:  getEnv("OAUTH_GOOGLE_REDIRECT_URI", "http://localhost:3000/login/google"),
+
+			TelegramClientID:     getEnv("OAUTH_TELEGRAM_CLIENT_ID", "id"),
+			TelegramClientSecret: getEnv("OAUTH_TELEGRAM_CLIENT_SECRET", "secret"),
 		},
 
 		GRPCPort: getEnv("GRPC_PORT", ":50053"),
