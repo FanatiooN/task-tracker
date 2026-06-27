@@ -21,7 +21,7 @@ func NewConfig() *Config {
 	_ = godotenv.Load("task-service/.env")
 
 	return &Config{
-		GRPCPort: getEnv("GRPC_PORT", ":50051"),
+		GRPCPort: getEnv("GRPC_PORT", ":50052"),
 
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),
