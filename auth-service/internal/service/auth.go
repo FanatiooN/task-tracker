@@ -23,7 +23,8 @@ type AuthService struct {
 	refreshTTL  time.Duration
 	userClient  userpb.UserServiceClient
 
-	oauthProvider    out.OAuthProvider
+	googleProvider   out.OAuthProvider
+	telegramProvider out.OAuthProvider
 	oauthCredentials out.OAuthCredentialRepository
 }
 
@@ -40,7 +41,8 @@ func NewAuthService(
 	accessTTL time.Duration,
 	refreshTTL time.Duration,
 	userClient userpb.UserServiceClient,
-	oauthProvider out.OAuthProvider,
+	googleProvider out.OAuthProvider,
+	telegramProvider out.OAuthProvider,
 	oauthCredentials out.OAuthCredentialRepository,
 ) *AuthService {
 	return &AuthService{
@@ -51,7 +53,8 @@ func NewAuthService(
 		refreshTTL:       refreshTTL,
 		userClient:       userClient,
 		oauthCredentials: oauthCredentials,
-		oauthProvider:    oauthProvider,
+		googleProvider:   googleProvider,
+		telegramProvider: telegramProvider,
 	}
 }
 
@@ -224,7 +227,16 @@ func (a AuthService) ValidateToken(ctx context.Context, accessToken string) (uui
 }
 
 func (a AuthService) LoginByOAuth(ctx context.Context, provider, code, redirectURI string) (domain.Tokens, error) {
-	userInfo, getErr := a.oauthProvider.GetUserInfo(ctx, provider, code, redirectURI)
+	var oauthProvider out.OAuthProvider
+
+	switch provider {
+	case "google":
+		oauthProvider = a.googleProvider
+	case "telegram":
+		oauthProvider = a.telegramProvider
+	}
+
+	userInfo, getErr := oauthProvider.GetUserInfo(ctx, provider, code, redirectURI)
 	if getErr != nil {
 		return domain.Tokens{}, getErr
 	}
