@@ -9,11 +9,11 @@ WHERE deleted_at IS NULL AND id = $1;
 
 -- name: ListTasks :many
 SELECT * FROM tasks
-WHERE deleted_at IS NULL AND user_id = $1
-AND ($2::task_status IS NULL OR status = $2)
-AND ($3::timestamptz IS NULL OR created_at < $3)
+WHERE deleted_at IS NULL AND user_id = sqlc.arg('user_id')
+AND (sqlc.narg('status')::task_status IS NULL OR status = sqlc.narg('status')::task_status)
+AND (sqlc.narg('cursor')::timestamptz IS NULL OR created_at < sqlc.narg('cursor')::timestamptz)
 ORDER BY created_at DESC
-LIMIT $4;
+LIMIT sqlc.arg('limit');
 
 -- name: UpdateTask :one
 UPDATE tasks
