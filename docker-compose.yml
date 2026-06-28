@@ -6,6 +6,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - gateway
 
   db-user:
     image: postgres:18-alpine
@@ -15,6 +17,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "${USER_DB_PORT}:5432"
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d user_db"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
 
   db-auth:
     image: postgres:18-alpine
@@ -24,12 +31,63 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "${AUTH_DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_AUTH} -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db-task:
     image: postgres:18-alpine
     environment:
       POSTGRES_DB: task_db
-      POSTGRES_USER: ${DB_USER}
+      POSTGRES_USER: ${DB_TASK}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "${TASK_DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_TASK} -d task_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    env_file: user-service/.env
+    depends_on:
+      db-user:
+        condition: service_healthy
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    env_file: auth-service/.env
+    depends_on:
+      user-service:
+        condition: service_started
+      db-auth:
+        condition: service_healthy
+
+  task-service:
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
+    env_file: task-service/.env
+    depends_on:
+      db-task:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    env_file: gateway/.env
+    depends_on:
+      - user-service
+      - auth-service
+      - task-service
+    ports:
+      - "${GATEWAY_PORT}:8080"
