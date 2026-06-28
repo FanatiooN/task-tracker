@@ -74,11 +74,16 @@ func (t TaskRepository) List(ctx context.Context, params domain.ListTasksParams)
 	}
 
 	if params.Status != nil {
-		queryParams.Column2 = db.TaskStatus(*params.Status)
+		status := *params.Status
+		queryParams.Status = db.NullTaskStatus{TaskStatus: db.TaskStatus(status), Valid: true}
+	} else {
+		queryParams.Status = db.NullTaskStatus{Valid: false}
 	}
 
 	if params.Cursor != nil {
-		queryParams.Column3 = *params.Cursor
+		queryParams.Cursor = pgtype.Timestamptz{Time: *params.Cursor, Valid: true}
+	} else {
+		queryParams.Cursor = pgtype.Timestamptz{Valid: false}
 	}
 
 	if params.PageSize > 0 {
