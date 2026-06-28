@@ -43,6 +43,8 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(string)
+
 	id := r.PathValue("id")
 	if id == "" {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -50,7 +52,8 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := h.client.GetTask(r.Context(), &taskpb.GetTaskRequest{
-		Id: id,
+		Id:     id,
+		UserId: userID,
 	})
 	if err != nil {
 		writeGRPCError(w, err)
@@ -114,6 +117,8 @@ func (h *TaskHandler) ListTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(string)
+
 	id := r.PathValue("id")
 	if id == "" {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -148,6 +153,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	response, err := h.client.UpdateTask(r.Context(), &taskpb.UpdateTaskRequest{
 		Id:          id,
+		UserId:      userID,
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      status,
@@ -161,6 +167,8 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) DeleteTasks(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(string)
+
 	var req struct {
 		Ids []string `json:"ids"`
 	}
@@ -171,7 +179,8 @@ func (h *TaskHandler) DeleteTasks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := h.client.DeleteTasks(r.Context(), &taskpb.DeleteTasksRequest{
-		Ids: req.Ids,
+		Ids:    req.Ids,
+		UserId: userID,
 	})
 	if err != nil {
 		writeGRPCError(w, err)
