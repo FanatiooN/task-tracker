@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -101,24 +100,24 @@ func (q *Queries) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
 const listTasks = `-- name: ListTasks :many
 SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
 WHERE deleted_at IS NULL AND user_id = $1
-AND ($2::task_status IS NULL OR status = $2)
-AND ($3::timestamptz IS NULL OR created_at < $3)
+AND ($2::task_status IS NULL OR status = $2::task_status)
+AND ($3::timestamptz IS NULL OR created_at < $3::timestamptz)
 ORDER BY created_at DESC
 LIMIT $4
 `
 
 type ListTasksParams struct {
-	UserID  uuid.UUID  `json:"user_id"`
-	Column2 TaskStatus `json:"column_2"`
-	Column3 time.Time  `json:"column_3"`
-	Limit   int32      `json:"limit"`
+	UserID uuid.UUID          `json:"user_id"`
+	Status NullTaskStatus     `json:"status"`
+	Cursor pgtype.Timestamptz `json:"cursor"`
+	Limit  int32              `json:"limit"`
 }
 
 func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, error) {
 	rows, err := q.db.Query(ctx, listTasks,
 		arg.UserID,
-		arg.Column2,
-		arg.Column3,
+		arg.Status,
+		arg.Cursor,
 		arg.Limit,
 	)
 	if err != nil {
