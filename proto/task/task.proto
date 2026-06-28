@@ -47,6 +47,7 @@ message CreateTaskResponse {
 
 message GetTaskRequest {
   string id = 1;
+  string user_id = 2;
 }
 message GetTaskResponse {
   Task task = 1; 
@@ -70,6 +71,7 @@ message UpdateTaskRequest {
   optional string title = 2;
   optional string description = 3;
   optional TaskStatus status = 4;
+  string user_id = 5;
 }
 message UpdateTaskResponse {
   Task task = 1;
@@ -78,4 +80,5 @@ message UpdateTaskResponse {
 
 message DeleteTasksRequest {
   repeated string ids = 1;
+  string user_id = 2;
 }

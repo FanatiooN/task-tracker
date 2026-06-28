@@ -274,6 +274,7 @@ func (x *CreateTaskResponse) GetTask() *Task {
 type GetTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,6 +312,13 @@ func (*GetTaskRequest) Descriptor() ([]byte, []int) {
 func (x *GetTaskRequest) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *GetTaskRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -485,6 +493,7 @@ type UpdateTaskRequest struct {
 	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
 	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Status        *TaskStatus            `protobuf:"varint,4,opt,name=status,proto3,enum=task.TaskStatus,oneof" json:"status,omitempty"`
+	UserId        string                 `protobuf:"bytes,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -547,6 +556,13 @@ func (x *UpdateTaskRequest) GetStatus() TaskStatus {
 	return TaskStatus_TASK_STATUS_UNSPECIFIED
 }
 
+func (x *UpdateTaskRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 type UpdateTaskResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Task          *Task                  `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
@@ -594,6 +610,7 @@ func (x *UpdateTaskResponse) GetTask() *Task {
 type DeleteTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ids           []string               `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -635,6 +652,13 @@ func (x *DeleteTasksRequest) GetIds() []string {
 	return nil
 }
 
+func (x *DeleteTasksRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 var File_proto_task_task_proto protoreflect.FileDescriptor
 
 const file_proto_task_task_proto_rawDesc = "" +
@@ -658,9 +682,10 @@ const file_proto_task_task_proto_rawDesc = "" +
 	"\f_description\"4\n" +
 	"\x12CreateTaskResponse\x12\x1e\n" +
 	"\x04task\x18\x01 \x01(\v2\n" +
-	".task.TaskR\x04task\" \n" +
+	".task.TaskR\x04task\"9\n" +
 	"\x0eGetTaskRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"1\n" +
 	"\x0fGetTaskResponse\x12\x1e\n" +
 	"\x04task\x18\x01 \x01(\v2\n" +
 	".task.TaskR\x04task\"\xa1\x01\n" +
@@ -674,20 +699,22 @@ const file_proto_task_task_proto_rawDesc = "" +
 	"\x11ListTasksResponse\x12 \n" +
 	"\x05tasks\x18\x01 \x03(\v2\n" +
 	".task.TaskR\x05tasks\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xb9\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xd2\x01\n" +
 	"\x11UpdateTaskRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12-\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x10.task.TaskStatusH\x02R\x06status\x88\x01\x01B\b\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x10.task.TaskStatusH\x02R\x06status\x88\x01\x01\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\tR\x06userIdB\b\n" +
 	"\x06_titleB\x0e\n" +
 	"\f_descriptionB\t\n" +
 	"\a_status\"4\n" +
 	"\x12UpdateTaskResponse\x12\x1e\n" +
 	"\x04task\x18\x01 \x01(\v2\n" +
-	".task.TaskR\x04task\"&\n" +
+	".task.TaskR\x04task\"?\n" +
 	"\x12DeleteTasksRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids*w\n" +
+	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId*w\n" +
 	"\n" +
 	"TaskStatus\x12\x1b\n" +
 	"\x17TASK_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
