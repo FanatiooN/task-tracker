@@ -317,12 +317,12 @@
   window.onTelegramAuth = onTelegramAuth
 
   async function refreshToken() {
-    const r = await request('POST', '/refresh', { refresh_token: refreshTokenVal }, 'session-response')
+    const r = await request('POST', '/refresh', { token: refreshTokenVal }, 'session-response')
     if (r.ok) setTokens(r.data.access_token, r.data.refresh_token)
   }
 
   async function logout() {
-    await request('POST', '/logout', { refresh_token: refreshTokenVal }, 'session-response')
+    await request('POST', '/logout', { token: refreshTokenVal }, 'session-response')
     accessToken = ''
     refreshTokenVal = ''
     currentUserID = ''
