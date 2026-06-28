@@ -12,5 +12,5 @@ type TaskRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (domain.Task, error)
 	List(ctx context.Context, params domain.ListTasksParams) ([]domain.Task, error)
 	Update(ctx context.Context, task domain.Task) (domain.Task, error)
-	Delete(ctx context.Context, id []uuid.UUID) error
+	Delete(ctx context.Context, id []uuid.UUID, userID uuid.UUID) error
 }

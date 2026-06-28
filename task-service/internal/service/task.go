@@ -37,10 +37,14 @@ func (t TaskService) CreateTask(ctx context.Context, task domain.Task) (domain.T
 	return createdTask, nil
 }
 
-func (t TaskService) GetTask(ctx context.Context, id uuid.UUID) (domain.Task, error) {
+func (t TaskService) GetTask(ctx context.Context, id, userID uuid.UUID) (domain.Task, error) {
 	task, err := t.repository.FindByID(ctx, id)
 	if err != nil {
 		return domain.Task{}, err
+	}
+
+	if task.UserID != userID {
+		return domain.Task{}, errors.New("not found")
 	}
 
 	return task, nil
@@ -74,10 +78,14 @@ func (t TaskService) ListTasks(ctx context.Context, pageToken string, params dom
 	return tasks, cursor, nil
 }
 
-func (t TaskService) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
+func (t TaskService) UpdateTask(ctx context.Context, task domain.Task, userID uuid.UUID) (domain.Task, error) {
 	existedTask, err := t.repository.FindByID(ctx, task.ID)
 	if err != nil {
 		return domain.Task{}, err
+	}
+
+	if existedTask.UserID != userID {
+		return domain.Task{}, errors.New("not found")
 	}
 
 	task.Title = strings.TrimSpace(task.Title)
@@ -110,12 +118,12 @@ func (t TaskService) UpdateTask(ctx context.Context, task domain.Task) (domain.T
 	return updatedTask, nil
 }
 
-func (t TaskService) DeleteTasks(ctx context.Context, id []uuid.UUID) error {
+func (t TaskService) DeleteTasks(ctx context.Context, id []uuid.UUID, userID uuid.UUID) error {
 	if len(id) == 0 {
 		return errors.New("empty task id list")
 	}
 
-	err := t.repository.Delete(ctx, id)
+	err := t.repository.Delete(ctx, id, userID)
 	if err != nil {
 		return err
 	}

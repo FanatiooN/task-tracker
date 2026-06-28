@@ -62,7 +62,12 @@ func (t TaskServer) GetTask(ctx context.Context, request *taskpb.GetTaskRequest)
 		return nil, err
 	}
 
-	response, err := t.service.GetTask(ctx, id)
+	userID, err := uuid.Parse(request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := t.service.GetTask(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +128,11 @@ func (t TaskServer) UpdateTask(ctx context.Context, request *taskpb.UpdateTaskRe
 		return nil, err
 	}
 
+	userID, err := uuid.Parse(request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	var description string
 	if request.Description != nil {
 		description = *request.Description
@@ -143,7 +153,7 @@ func (t TaskServer) UpdateTask(ctx context.Context, request *taskpb.UpdateTaskRe
 		Title:       title,
 		Status:      status,
 		Description: description,
-	})
+	}, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -161,6 +171,11 @@ func (t TaskServer) UpdateTask(ctx context.Context, request *taskpb.UpdateTaskRe
 }
 
 func (t TaskServer) DeleteTasks(ctx context.Context, request *taskpb.DeleteTasksRequest) (*emptypb.Empty, error) {
+	userID, err := uuid.Parse(request.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	ids := make([]uuid.UUID, 0, len(request.Ids))
 	for _, id := range request.Ids {
 		parsedId, err := uuid.Parse(id)
@@ -171,7 +186,7 @@ func (t TaskServer) DeleteTasks(ctx context.Context, request *taskpb.DeleteTasks
 		ids = append(ids, parsedId)
 	}
 
-	err := t.service.DeleteTasks(ctx, ids)
+	err = t.service.DeleteTasks(ctx, ids, userID)
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}

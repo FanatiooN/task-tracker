@@ -140,8 +140,8 @@ func (t TaskRepository) Update(ctx context.Context, task domain.Task) (domain.Ta
 	}, nil
 }
 
-func (t TaskRepository) Delete(ctx context.Context, id []uuid.UUID) error {
-	_, err := t.queries.DeleteTasks(ctx, id)
+func (t TaskRepository) Delete(ctx context.Context, id []uuid.UUID, userID uuid.UUID) error {
+	_, err := t.queries.DeleteTasks(ctx, db.DeleteTasksParams{id, userID})
 	if err != nil {
 		return err
 	}
