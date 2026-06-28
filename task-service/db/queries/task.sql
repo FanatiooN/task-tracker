@@ -24,5 +24,5 @@ RETURNING *;
 -- name: DeleteTasks :many
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()
-WHERE deleted_at IS NULL and id = ANY($1::uuid[])
+WHERE deleted_at IS NULL AND id = ANY($1::uuid[]) AND user_id = $2
 RETURNING *;

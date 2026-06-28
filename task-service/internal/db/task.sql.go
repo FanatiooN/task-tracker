@@ -43,12 +43,17 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 const deleteTasks = `-- name: DeleteTasks :many
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()
-WHERE deleted_at IS NULL and id = ANY($1::uuid[])
+WHERE deleted_at IS NULL AND id = ANY($1::uuid[]) AND user_id = $2
 RETURNING id, user_id, title, description, status, created_at, updated_at, deleted_at
 `
 
-func (q *Queries) DeleteTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]Task, error) {
-	rows, err := q.db.Query(ctx, deleteTasks, dollar_1)
+type DeleteTasksParams struct {
+	Column1 []uuid.UUID `json:"column_1"`
+	UserID  uuid.UUID   `json:"user_id"`
+}
+
+func (q *Queries) DeleteTasks(ctx context.Context, arg DeleteTasksParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, deleteTasks, arg.Column1, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
