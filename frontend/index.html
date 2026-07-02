@@ -68,7 +68,9 @@
         <input id="login-email" type="email" placeholder="email">
         <input id="login-password" type="password" placeholder="password">
         <button onclick="login()">Login</button>
-        <button class="google" onclick="loginGoogle()">Login with Google</button>
+        <form method="POST" action="/login/google" style="display:inline">
+          <button type="submit" class="google">Login with Google</button>
+        </form>
       </div>
       <div id="telegram-widget" style="margin-top:8px"></div>
       <div id="login-response" class="response hidden"></div>
@@ -281,10 +283,6 @@
       password: document.getElementById('reg-password').value,
     }, 'register-response')
     if (r.ok) setTokens(r.data.access_token, r.data.refresh_token)
-  }
-
-  function loginGoogle() {
-    window.location.href = API + '/login/google'
   }
 
   function initTelegramWidget() {
