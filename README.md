@@ -23,9 +23,9 @@ docker compose up --build
 | POST  | `/login`                 | вход по email + паролю        |
 | POST  | `/refresh`               | обмен refresh на новые токены |
 | POST  | `/logout`                | отзыв refresh-токена          |
-| GET   | `/login/google`          | редирект на Google OAuth      |
-| GET   | `/login/google/callback` | Google OAuth callback         |
 | POST  | `/login/telegram`        | вход по Telegram id_token     |
+| POST  | `/login/google`          | редирект на Google OAuth      |
+| GET   | `/login/google/callback` | Google OAuth callback         |
 
 ### Tasks
 
