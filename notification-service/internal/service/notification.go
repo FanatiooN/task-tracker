@@ -7,14 +7,16 @@ import (
 )
 
 type NotificationService struct {
-	repository out.NotificationRepository
-	provider   out.NotificationProvider
+	userContactRepo  out.UserContactRepository
+	notificationRepo out.NotificationRepository
+	provider         out.NotificationProvider
 }
 
-func NewNotificationService(repository out.NotificationRepository, provider out.NotificationProvider) *NotificationService {
+func NewNotificationService(userContactRepo out.UserContactRepository, notificationRepo out.NotificationRepository, provider out.NotificationProvider) *NotificationService {
 	return &NotificationService{
-		repository: repository,
-		provider:   provider,
+		userContactRepo:  userContactRepo,
+		notificationRepo: notificationRepo,
+		provider:         provider,
 	}
 }
 
@@ -24,7 +26,7 @@ func (n NotificationService) Send(ctx context.Context, notification domain.Notif
 		return err
 	}
 
-	_, err = n.repository.Save(ctx, notification)
+	_, err = n.notificationRepo.Save(ctx, notification)
 	if err != nil {
 		return err
 	}
@@ -33,7 +35,7 @@ func (n NotificationService) Send(ctx context.Context, notification domain.Notif
 }
 
 func (n NotificationService) GetStats(ctx context.Context, filter domain.StatisticsFilter) ([]domain.Statistics, error) {
-	response, err := n.repository.GetStatistics(ctx, filter)
+	response, err := n.notificationRepo.GetStatistics(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

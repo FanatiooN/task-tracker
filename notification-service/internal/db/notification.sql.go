@@ -9,7 +9,57 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const getStatistics = `-- name: GetStatistics :many
+SELECT type, provider, DATE(created_at) as date,
+       COUNT(distinct user_id) AS unique_hits,
+       COUNT(*) AS total_hits
+FROM notifications
+WHERE ($1::text IS NULL OR provider = $1::text)
+AND ($2::timestamptz IS NULL OR DATE(created_at) = DATE($2::timestamptz))
+GROUP BY type, provider, DATE(created_at)
+`
+
+type GetStatisticsParams struct {
+	Provider pgtype.Text        `json:"provider"`
+	Date     pgtype.Timestamptz `json:"date"`
+}
+
+type GetStatisticsRow struct {
+	Type       string      `json:"type"`
+	Provider   string      `json:"provider"`
+	Date       pgtype.Date `json:"date"`
+	UniqueHits int64       `json:"unique_hits"`
+	TotalHits  int64       `json:"total_hits"`
+}
+
+func (q *Queries) GetStatistics(ctx context.Context, arg GetStatisticsParams) ([]GetStatisticsRow, error) {
+	rows, err := q.db.Query(ctx, getStatistics, arg.Provider, arg.Date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStatisticsRow
+	for rows.Next() {
+		var i GetStatisticsRow
+		if err := rows.Scan(
+			&i.Type,
+			&i.Provider,
+			&i.Date,
+			&i.UniqueHits,
+			&i.TotalHits,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const saveNotification = `-- name: SaveNotification :one
 INSERT INTO notifications(user_id, type, provider)
