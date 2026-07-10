@@ -15,6 +15,8 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+
+	KafkaBrokerAddr string
 }
 
 func NewConfig() *Config {
@@ -28,6 +30,8 @@ func NewConfig() *Config {
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 		DBName:     getEnv("DB_NAME", "postgres"),
+
+		KafkaBrokerAddr: getEnv("KAFKA_BROKER_ADDR", "localhost:9092"),
 	}
 }
 
