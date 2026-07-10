@@ -13,4 +13,5 @@ type TaskRepository interface {
 	List(ctx context.Context, params domain.ListTasksParams) ([]domain.Task, error)
 	Update(ctx context.Context, task domain.Task) (domain.Task, error)
 	Delete(ctx context.Context, id []uuid.UUID, userID uuid.UUID) error
+	GetDailySummary(ctx context.Context) ([]domain.UserTaskSummary, error)
 }
