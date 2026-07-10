@@ -18,10 +18,13 @@ import (
 type AuthService struct {
 	credentials out.CredentialRepository
 	tokens      out.TokenRepository
-	jwtSecret   string
-	accessTTL   time.Duration
-	refreshTTL  time.Duration
-	userClient  userpb.UserServiceClient
+
+	jwtSecret  string
+	accessTTL  time.Duration
+	refreshTTL time.Duration
+
+	userClient userpb.UserServiceClient
+	producer   out.ContactProducer
 
 	googleProvider   out.OAuthProvider
 	telegramProvider out.OAuthProvider
@@ -41,6 +44,7 @@ func NewAuthService(
 	accessTTL time.Duration,
 	refreshTTL time.Duration,
 	userClient userpb.UserServiceClient,
+	producer out.ContactProducer,
 	googleProvider out.OAuthProvider,
 	telegramProvider out.OAuthProvider,
 	oauthCredentials out.OAuthCredentialRepository,
@@ -55,6 +59,7 @@ func NewAuthService(
 		oauthCredentials: oauthCredentials,
 		googleProvider:   googleProvider,
 		telegramProvider: telegramProvider,
+		producer:         producer,
 	}
 }
 
@@ -68,6 +73,8 @@ func (a AuthService) LoginByEmail(ctx context.Context, email, password string) (
 	if err != nil {
 		return domain.Tokens{}, err
 	}
+
+	_ = a.producer.Produce(ctx, creds.UserID, "email", creds.Email)
 
 	tokens, err := a.generateAccessToken(ctx, creds.UserID)
 	if err != nil {
@@ -109,6 +116,8 @@ func (a AuthService) RegisterByEmail(ctx context.Context, name, email, password 
 	if err != nil {
 		return domain.Tokens{}, err
 	}
+
+	_ = a.producer.Produce(ctx, userID, "email", email)
 
 	tokens, err := a.generateAccessToken(ctx, userID)
 	if err != nil {
@@ -265,12 +274,24 @@ func (a AuthService) LoginByOAuth(ctx context.Context, provider, code, redirectU
 			return domain.Tokens{}, err
 		}
 
+		if provider == "google" && userInfo.Email != nil {
+			_ = a.producer.Produce(ctx, userID, "email", *userInfo.Email)
+		} else if provider == "telegram" && userInfo.TGUsername != nil {
+			_ = a.producer.Produce(ctx, userID, "telegram", *userInfo.TGUsername)
+		}
+
 		tokens, err := a.generateAccessToken(ctx, userID)
 		if err != nil {
 			return domain.Tokens{}, err
 		}
 
 		return tokens, nil
+	}
+
+	if provider == "google" && userInfo.Email != nil {
+		_ = a.producer.Produce(ctx, creds.UserID, "email", *userInfo.Email)
+	} else if provider == "telegram" && userInfo.TGUsername != nil {
+		_ = a.producer.Produce(ctx, creds.UserID, "telegram", *userInfo.TGUsername)
 	}
 
 	tokens, err := a.generateAccessToken(ctx, creds.UserID)
