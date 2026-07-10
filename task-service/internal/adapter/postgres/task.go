@@ -148,3 +148,21 @@ func (t TaskRepository) Delete(ctx context.Context, id []uuid.UUID, userID uuid.
 
 	return nil
 }
+
+func (t TaskRepository) GetDailySummary(ctx context.Context) ([]domain.UserTaskSummary, error) {
+	rows, err := t.queries.GetDailyTaskSummary(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	summaries := make([]domain.UserTaskSummary, 0, len(rows))
+	for _, summary := range rows {
+		summaries = append(summaries, domain.UserTaskSummary{
+			UserID:          summary.UserID,
+			DoneCount:       int(summary.DoneCount),
+			InProgressCount: int(summary.InProgressCount),
+		})
+	}
+
+	return summaries, nil
+}
