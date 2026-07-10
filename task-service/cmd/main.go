@@ -8,8 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 	"task-tracker/gen/proto/task"
+	kafkatopics "task-tracker/kafka"
 	pkgdb "task-tracker/pkg/db"
+	pkgkafka "task-tracker/pkg/kafka"
 	grpcadapter "task-tracker/task-service/internal/adapter/grpc"
+	"task-tracker/task-service/internal/adapter/kafka"
 	"task-tracker/task-service/internal/adapter/postgres"
 	"task-tracker/task-service/internal/config"
 	"task-tracker/task-service/internal/db"
@@ -32,7 +35,18 @@ func main() {
 	queries := db.New(pool)
 
 	repo := postgres.NewTaskRepository(queries)
-	taskService := service.NewTaskService(repo)
+
+	err = pkgkafka.CreateTopic(kafkatopics.SendNotificationTopic, conf.KafkaBrokerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	producer := pkgkafka.NewProducer(kafkatopics.SendNotificationTopic, conf.KafkaBrokerAddr)
+	reportProducer := kafka.NewReportProducer(producer)
+
+	defer producer.Close()
+
+	taskService := service.NewTaskService(repo, reportProducer)
 	server := grpcadapter.NewTaskServer(taskService)
 
 	grpcServer := grpc.NewServer()
