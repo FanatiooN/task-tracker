@@ -17,6 +17,7 @@ func NewConsumer(topic, groupID string, brokers ...string) *Consumer {
 		Topic:   topic,
 		GroupID: groupID,
 	}
+
 	return &Consumer{
 		reader: kafka.NewReader(conf),
 	}
