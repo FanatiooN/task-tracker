@@ -20,6 +20,7 @@ type Config struct {
 	DBName     string
 
 	UserServiceAddr string
+	KafkaBrokerAddr string
 
 	JWTSecret     string
 	JWTAccessTTL  time.Duration
@@ -57,6 +58,7 @@ func NewConfig() *Config {
 		DBName:     getEnv("DB_NAME", "postgres"),
 
 		UserServiceAddr: getEnv("USER_SERVICE_ADDR", "localhost:50051"),
+		KafkaBrokerAddr: getEnv("KAFKA_BROKER_ADDR", "localhost:9092"),
 
 		JWTSecret:     getEnv("JWT_SECRET", "supersecret"),
 		JWTAccessTTL:  ttlDuration("JWT_ACCESS_TTL", "15m"),
