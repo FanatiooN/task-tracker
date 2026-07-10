@@ -20,7 +20,7 @@ func NewNotificationProvider(token, senderEmail string) *NotificationProvider {
 }
 
 func (n NotificationProvider) Send(context context.Context, notification domain.Notification) error {
-	email := ""
+	email := notification.Contact
 	request := resend.SendEmailRequest{
 		From:        n.senderEmail,
 		To:          []string{email},
@@ -36,10 +36,10 @@ func (n NotificationProvider) Send(context context.Context, notification domain.
 	return nil
 }
 
-func photoUrlsToAttachments(Urls []string) []*resend.Attachment {
-	attachments := make([]*resend.Attachment, 0, len(Urls))
+func photoUrlsToAttachments(urls []string) []*resend.Attachment {
+	attachments := make([]*resend.Attachment, 0, len(urls))
 
-	for _, url := range Urls {
+	for _, url := range urls {
 		attachment := resend.Attachment{
 			Path: url,
 		}
