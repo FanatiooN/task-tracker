@@ -16,6 +16,12 @@ type Task struct {
 	UpdatedAt   time.Time
 }
 
+type UserTaskSummary struct {
+	UserID          uuid.UUID
+	DoneCount       int
+	InProgressCount int
+}
+
 type TaskStatus string
 
 const (
