@@ -11,6 +11,7 @@ type Notification struct {
 	UserID           uuid.UUID
 	Type             string
 	Provider         string
+	Contact          string
 	NotificationBody NotificationBody
 	CreatedAt        time.Time
 }

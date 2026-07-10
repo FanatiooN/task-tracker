@@ -21,7 +21,17 @@ func NewNotificationService(userContactRepo out.UserContactRepository, notificat
 }
 
 func (n NotificationService) Send(ctx context.Context, notification domain.Notification) error {
-	err := n.provider.Send(ctx, notification)
+	userID := notification.UserID
+	provider := notification.Provider
+
+	contact, err := n.userContactRepo.GetContact(ctx, userID, provider)
+	if err != nil {
+		return err
+	}
+
+	notification.Contact = contact
+
+	err = n.provider.Send(ctx, notification)
 	if err != nil {
 		return err
 	}
