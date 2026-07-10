@@ -14,6 +14,7 @@ service TaskService {
   rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
   rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
   rpc DeleteTasks(DeleteTasksRequest) returns (google.protobuf.Empty);
+  rpc SendDailyReport(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 enum TaskStatus {

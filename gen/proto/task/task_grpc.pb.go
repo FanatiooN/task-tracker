@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TaskService_CreateTask_FullMethodName  = "/task.TaskService/CreateTask"
-	TaskService_GetTask_FullMethodName     = "/task.TaskService/GetTask"
-	TaskService_ListTasks_FullMethodName   = "/task.TaskService/ListTasks"
-	TaskService_UpdateTask_FullMethodName  = "/task.TaskService/UpdateTask"
-	TaskService_DeleteTasks_FullMethodName = "/task.TaskService/DeleteTasks"
+	TaskService_CreateTask_FullMethodName      = "/task.TaskService/CreateTask"
+	TaskService_GetTask_FullMethodName         = "/task.TaskService/GetTask"
+	TaskService_ListTasks_FullMethodName       = "/task.TaskService/ListTasks"
+	TaskService_UpdateTask_FullMethodName      = "/task.TaskService/UpdateTask"
+	TaskService_DeleteTasks_FullMethodName     = "/task.TaskService/DeleteTasks"
+	TaskService_SendDailyReport_FullMethodName = "/task.TaskService/SendDailyReport"
 )
 
 // TaskServiceClient is the client API for TaskService service.
@@ -36,6 +37,7 @@ type TaskServiceClient interface {
 	ListTasks(ctx context.Context, in *ListTasksRequest, opts ...grpc.CallOption) (*ListTasksResponse, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*UpdateTaskResponse, error)
 	DeleteTasks(ctx context.Context, in *DeleteTasksRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendDailyReport(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type taskServiceClient struct {
@@ -96,6 +98,16 @@ func (c *taskServiceClient) DeleteTasks(ctx context.Context, in *DeleteTasksRequ
 	return out, nil
 }
 
+func (c *taskServiceClient) SendDailyReport(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TaskService_SendDailyReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TaskServiceServer is the server API for TaskService service.
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility.
@@ -105,6 +117,7 @@ type TaskServiceServer interface {
 	ListTasks(context.Context, *ListTasksRequest) (*ListTasksResponse, error)
 	UpdateTask(context.Context, *UpdateTaskRequest) (*UpdateTaskResponse, error)
 	DeleteTasks(context.Context, *DeleteTasksRequest) (*emptypb.Empty, error)
+	SendDailyReport(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
 
@@ -129,6 +142,9 @@ func (UnimplementedTaskServiceServer) UpdateTask(context.Context, *UpdateTaskReq
 }
 func (UnimplementedTaskServiceServer) DeleteTasks(context.Context, *DeleteTasksRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTasks not implemented")
+}
+func (UnimplementedTaskServiceServer) SendDailyReport(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendDailyReport not implemented")
 }
 func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
 func (UnimplementedTaskServiceServer) testEmbeddedByValue()                     {}
@@ -241,6 +257,24 @@ func _TaskService_DeleteTasks_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskService_SendDailyReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).SendDailyReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_SendDailyReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).SendDailyReport(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TaskService_ServiceDesc is the grpc.ServiceDesc for TaskService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +301,10 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTasks",
 			Handler:    _TaskService_DeleteTasks_Handler,
+		},
+		{
+			MethodName: "SendDailyReport",
+			Handler:    _TaskService_SendDailyReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

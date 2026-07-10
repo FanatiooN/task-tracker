@@ -720,7 +720,7 @@ const file_proto_task_task_proto_rawDesc = "" +
 	"\x17TASK_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17TASK_STATUS_IN_PROGRESS\x10\x01\x12\x14\n" +
 	"\x10TASK_STATUS_DONE\x10\x02\x12\x19\n" +
-	"\x15TASK_STATUS_CANCELLED\x10\x032\xc6\x02\n" +
+	"\x15TASK_STATUS_CANCELLED\x10\x032\x89\x03\n" +
 	"\vTaskService\x12?\n" +
 	"\n" +
 	"CreateTask\x12\x17.task.CreateTaskRequest\x1a\x18.task.CreateTaskResponse\x126\n" +
@@ -728,7 +728,8 @@ const file_proto_task_task_proto_rawDesc = "" +
 	"\tListTasks\x12\x16.task.ListTasksRequest\x1a\x17.task.ListTasksResponse\x12?\n" +
 	"\n" +
 	"UpdateTask\x12\x17.task.UpdateTaskRequest\x1a\x18.task.UpdateTaskResponse\x12?\n" +
-	"\vDeleteTasks\x12\x18.task.DeleteTasksRequest\x1a\x16.google.protobuf.EmptyB\x19Z\x17task-tracker/proto/taskb\x06proto3"
+	"\vDeleteTasks\x12\x18.task.DeleteTasksRequest\x1a\x16.google.protobuf.Empty\x12A\n" +
+	"\x0fSendDailyReport\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.EmptyB\x19Z\x17task-tracker/proto/taskb\x06proto3"
 
 var (
 	file_proto_task_task_proto_rawDescOnce sync.Once
@@ -774,13 +775,15 @@ var file_proto_task_task_proto_depIdxs = []int32{
 	6,  // 11: task.TaskService.ListTasks:input_type -> task.ListTasksRequest
 	8,  // 12: task.TaskService.UpdateTask:input_type -> task.UpdateTaskRequest
 	10, // 13: task.TaskService.DeleteTasks:input_type -> task.DeleteTasksRequest
-	3,  // 14: task.TaskService.CreateTask:output_type -> task.CreateTaskResponse
-	5,  // 15: task.TaskService.GetTask:output_type -> task.GetTaskResponse
-	7,  // 16: task.TaskService.ListTasks:output_type -> task.ListTasksResponse
-	9,  // 17: task.TaskService.UpdateTask:output_type -> task.UpdateTaskResponse
-	12, // 18: task.TaskService.DeleteTasks:output_type -> google.protobuf.Empty
-	14, // [14:19] is the sub-list for method output_type
-	9,  // [9:14] is the sub-list for method input_type
+	12, // 14: task.TaskService.SendDailyReport:input_type -> google.protobuf.Empty
+	3,  // 15: task.TaskService.CreateTask:output_type -> task.CreateTaskResponse
+	5,  // 16: task.TaskService.GetTask:output_type -> task.GetTaskResponse
+	7,  // 17: task.TaskService.ListTasks:output_type -> task.ListTasksResponse
+	9,  // 18: task.TaskService.UpdateTask:output_type -> task.UpdateTaskResponse
+	12, // 19: task.TaskService.DeleteTasks:output_type -> google.protobuf.Empty
+	12, // 20: task.TaskService.SendDailyReport:output_type -> google.protobuf.Empty
+	15, // [15:21] is the sub-list for method output_type
+	9,  // [9:15] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
 	9,  // [9:9] is the sub-list for extension extendee
 	0,  // [0:9] is the sub-list for field type_name
