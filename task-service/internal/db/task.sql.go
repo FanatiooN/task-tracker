@@ -81,6 +81,44 @@ func (q *Queries) DeleteTasks(ctx context.Context, arg DeleteTasksParams) ([]Tas
 	return items, nil
 }
 
+const getDailyTaskSummary = `-- name: GetDailyTaskSummary :many
+SELECT user_id,
+       COUNT(*) FILTER (WHERE status = 'done') AS done_count,
+       COUNT(*) FILTER (WHERE status = 'in_progress') AS in_progress_count
+FROM tasks
+WHERE deleted_at IS NULL AND (
+    status = 'in_progress' OR
+    (status = 'done' AND DATE(updated_at) = DATE(NOW()))
+    )
+GROUP BY user_id
+`
+
+type GetDailyTaskSummaryRow struct {
+	UserID          uuid.UUID `json:"user_id"`
+	DoneCount       int64     `json:"done_count"`
+	InProgressCount int64     `json:"in_progress_count"`
+}
+
+func (q *Queries) GetDailyTaskSummary(ctx context.Context) ([]GetDailyTaskSummaryRow, error) {
+	rows, err := q.db.Query(ctx, getDailyTaskSummary)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDailyTaskSummaryRow
+	for rows.Next() {
+		var i GetDailyTaskSummaryRow
+		if err := rows.Scan(&i.UserID, &i.DoneCount, &i.InProgressCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTask = `-- name: GetTask :one
 SELECT id, user_id, title, description, status, created_at, updated_at, deleted_at FROM tasks
 WHERE deleted_at IS NULL AND id = $1
