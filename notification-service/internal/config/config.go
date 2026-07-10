@@ -13,9 +13,14 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+
+	KafkaBrokerAddr    string
+	EmailProviderToken string
+	SenderEmail        string
 }
 
 func NewConfig() *Config {
+	_ = godotenv.Load("notification-service/.env.local")
 	_ = godotenv.Load("notification-service/.env")
 
 	return &Config{
@@ -24,6 +29,10 @@ func NewConfig() *Config {
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 		DBName:     getEnv("DB_NAME", "postgres"),
+
+		KafkaBrokerAddr:    getEnv("KAFKA_BROKER_ADDR", "localhost:9092"),
+		EmailProviderToken: getEnv("EMAIL_PROVIDER_TOKEN", "token"),
+		SenderEmail:        getEnv("SENDER_EMAIL", "sender@mail.ru"),
 	}
 }
 
