@@ -13,4 +13,5 @@ type TaskService interface {
 	ListTasks(ctx context.Context, pageToken string, params domain.ListTasksParams) ([]domain.Task, string, error)
 	UpdateTask(ctx context.Context, task domain.Task, userID uuid.UUID) (domain.Task, error)
 	DeleteTasks(ctx context.Context, id []uuid.UUID, userID uuid.UUID) error
+	SendDailyReport(ctx context.Context) error
 }

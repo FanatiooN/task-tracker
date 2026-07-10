@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 	"strings"
 	"task-tracker/task-service/internal/domain"
 	"task-tracker/task-service/internal/port/out"
@@ -11,11 +13,15 @@ import (
 )
 
 type TaskService struct {
-	repository out.TaskRepository
+	repository     out.TaskRepository
+	reportProducer out.ReportProducer
 }
 
-func NewTaskService(repository out.TaskRepository) *TaskService {
-	return &TaskService{repository: repository}
+func NewTaskService(repository out.TaskRepository, reportProducer out.ReportProducer) *TaskService {
+	return &TaskService{
+		repository:     repository,
+		reportProducer: reportProducer,
+	}
 }
 
 func (t TaskService) CreateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
@@ -126,6 +132,30 @@ func (t TaskService) DeleteTasks(ctx context.Context, id []uuid.UUID, userID uui
 	err := t.repository.Delete(ctx, id, userID)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (t TaskService) SendDailyReport(ctx context.Context) error {
+	summaries, err := t.repository.GetDailySummary(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	pattern := "Daily report: %d tasks completed today, %d tasks in progress"
+	notificationType := "daily_report"
+	provider := "email"
+
+	var photoUrls []string
+
+	for _, summary := range summaries {
+		text := fmt.Sprintf(pattern, summary.DoneCount, summary.InProgressCount)
+		err := t.reportProducer.Produce(ctx, summary.UserID, notificationType, provider, text, photoUrls)
+		if err != nil {
+			log.Printf("error while sending daily report for user %v: %v", summary.UserID, err)
+		}
 	}
 
 	return nil
