@@ -194,6 +194,12 @@ func (t TaskServer) DeleteTasks(ctx context.Context, request *taskpb.DeleteTasks
 	return &emptypb.Empty{}, nil
 }
 
+func (t TaskServer) SendDailyReport(ctx context.Context, request *emptypb.Empty) (*emptypb.Empty, error) {
+	err := t.service.SendDailyReport(ctx)
+
+	return &emptypb.Empty{}, err
+}
+
 func convertDomainToProtoStatus(status domain.TaskStatus) taskpb.TaskStatus {
 	switch status {
 	case domain.TaskStatusInProgress:
