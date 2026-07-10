@@ -9,13 +9,16 @@ import (
 	"syscall"
 	"task-tracker/auth-service/internal/adapter/google"
 	grpcadapter "task-tracker/auth-service/internal/adapter/grpc"
+	"task-tracker/auth-service/internal/adapter/kafka"
 	"task-tracker/auth-service/internal/adapter/postgres"
 	"task-tracker/auth-service/internal/adapter/telegram"
 	"task-tracker/auth-service/internal/config"
 	"task-tracker/auth-service/internal/db"
 	"task-tracker/auth-service/internal/service"
 	"task-tracker/gen/proto/auth"
+	kafkatopics "task-tracker/kafka"
 	pkgdb "task-tracker/pkg/db"
+	pkgkafka "task-tracker/pkg/kafka"
 
 	"google.golang.org/grpc"
 )
@@ -45,7 +48,17 @@ func main() {
 	googleProvider := google.NewOAuthProvider(conf.OAuth.GoogleClientID, conf.OAuth.GoogleClientSecret)
 	telegramProvider := telegram.NewOAuthProvider(conf.OAuth.TelegramClientID)
 
-	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient, googleProvider, telegramProvider, oauthCredRepo)
+	err = pkgkafka.CreateTopic(kafkatopics.UserContactLinkedTopic, conf.KafkaBrokerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	producer := pkgkafka.NewProducer(kafkatopics.UserContactLinkedTopic, conf.KafkaBrokerAddr)
+	contactProducer := kafka.NewContactProducer(producer)
+
+	defer producer.Close()
+
+	authService := service.NewAuthService(credRepo, tokenRepo, conf.JWTSecret, conf.JWTAccessTTL, conf.JWTRefreshTTL, userClient, contactProducer, googleProvider, telegramProvider, oauthCredRepo)
 	server := grpcadapter.NewAuthServer(authService)
 
 	grpcServer := grpc.NewServer()
