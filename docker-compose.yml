@@ -120,6 +120,14 @@ services:
     ports:
       - "${GATEWAY_PORT}:8080"
 
+  scheduler:
+    build:
+      context: .
+      dockerfile: scheduler/Dockerfile
+    env_file: scheduler/.env
+    depends_on:
+      - task-service
+
   kafka:
     image: apache/kafka:3.8.0
     container_name: kafka-broker
