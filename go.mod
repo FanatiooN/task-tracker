@@ -30,6 +30,7 @@ require (
 	github.com/lestrrat-go/iter v1.0.2 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
