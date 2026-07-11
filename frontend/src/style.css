@@ -1,0 +1,64 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --border: #e2ddd6;
+  --border-hover: #c4beb6;
+  --text-primary: #1a1918;
+  --text-secondary: #787570;
+  --text-muted: #a8a49e;
+  --accent: #1d4ed8;
+  --accent-hover: #1e3a8a;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --done-text: #a8a49e;
+  --radius: 3px;
+  --transition: 140ms ease;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+input,
+textarea {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
