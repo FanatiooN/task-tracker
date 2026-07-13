@@ -5,7 +5,10 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     ports:
-      - "3000:3000"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - gateway
 
